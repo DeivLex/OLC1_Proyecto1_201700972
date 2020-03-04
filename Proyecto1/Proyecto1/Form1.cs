@@ -29,8 +29,8 @@ namespace Proyecto1
         static int Fmacro = 0;
         ArrayList Conjunto = new ArrayList();
         ArrayList DatCon = new ArrayList();
-        static ArrayList ER = new ArrayList();
-        static ArrayList NameER = new ArrayList();
+        internal static ArrayList ER = new ArrayList();
+        internal static ArrayList NameER = new ArrayList();
         public Form1()
         {
             InitializeComponent();
@@ -42,7 +42,7 @@ namespace Proyecto1
 
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.InitialDirectory = "C:\\Users\\Davis\\Documents";
                 openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
                 openFileDialog.FilterIndex = 2;
                 openFileDialog.RestoreDirectory = true;
@@ -353,7 +353,7 @@ namespace Proyecto1
                                 AddList(auxLex, "comentario");
                                 estado = 0;
                             }
-                            else if (c != 'Ñ')
+                            else
                             {
                                 auxLex += c;
                                 estado = 8;
@@ -381,8 +381,11 @@ namespace Proyecto1
                             {
                                 auxLex += c;
                                 estado = 11;
+                            }else if (c=='\n')
+                            {
+                                estado = 10;
                             }
-                            else if (c != 'Ñ')
+                            else
                             {
                                 auxLex += c;
                                 estado = 10;
@@ -393,7 +396,7 @@ namespace Proyecto1
                         {
                             if (c == '>')
                             {
-                                auxLex += c;
+                                auxLex += "&gt;";
                                 AddList(auxLex, "comentario miltilinea");
                                 estado = 0;
                             }
@@ -519,7 +522,7 @@ namespace Proyecto1
                             }
                             else if (c == '<')
                             {
-                                auxLex += c;
+                                auxLex += "&lt;";
                                 estado = 9;
                             }
                             else if (c == '%')
@@ -553,15 +556,6 @@ namespace Proyecto1
             listaLexema.Add(lex);
             listaToken.Add(token);
             auxLex = "";
-        }
-        private void imprimirLista()
-        {
-            String auxiliar = "Token    -------   Lexema\n";
-            for (int i = 0; i < listaLexema.Count; i++)
-            {
-                auxiliar += listaToken[i]+ "  -------  " + listaLexema[i] + "\n";
-            }
-            Consola.Text=auxiliar;
         }
         private bool esEspacio(char c)
         {
@@ -635,13 +629,12 @@ namespace Proyecto1
             //inicio
             if (fuente.Length == 0)
             {
-                Consola.Text="El cuadro de entrada no contiene caracteres a evaluar. ";
+               MessageBox.Show("El cuadro de entrada no contiene caracteres a evaluar. ","vacio");
 
             }
             else
             {
                 iniciarProceso();
-                imprimirLista();
                 for (int i = 0; i < NameER.Count; i++)
                 {
                     if (i == 0)
@@ -688,6 +681,17 @@ namespace Proyecto1
         private void button2_Click(object sender, EventArgs e)
         {
             ReporteHTML();
+        }
+
+        private void MostrarConjuntos_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            Thompson v = new Thompson();
+            v.Inicio(selector.SelectedItem.ToString());
         }
     }
 }
