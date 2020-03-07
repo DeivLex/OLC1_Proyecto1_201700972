@@ -11,6 +11,7 @@ namespace Proyecto1
 
     class Thompson
     {
+        static int NumO;
         String ruta;
         StringBuilder grafo;
         ArrayList Aux = new ArrayList();
@@ -18,6 +19,7 @@ namespace Proyecto1
         ArrayList ListaMueve = new ArrayList();
         public void Inicio(String filtro)
         {
+            NumO = 0;
             ruta = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             Aux.Clear();
             //llenar aux con la expresion regular
@@ -44,15 +46,19 @@ namespace Proyecto1
                     {
                         if (ListaThom[j] == null)
                         {
-                            ListaMueve.Insert(j,"n4");
+                            ListaMueve[j] = "n";
+                            ListaMueve.Insert(j, "n");
+                            ListaThom[j] = null;
                             ListaThom.Insert(j, null);
                             break;
                         }
                     }
                     if (ListaThom.Count == 0)
                     {
-                        ListaMueve.Insert(0,"n4");
+                        ListaMueve.Insert(0, "n");
+                        ListaMueve.Insert(1, "n");
                         ListaThom.Insert(0, null);
+                        ListaThom.Insert(1, null);
                     }
                 }
                 else if (Aux[i].Equals("or"))
@@ -61,31 +67,107 @@ namespace Proyecto1
                     {
                         if (ListaThom[j] == null)
                         {
-                            ListaMueve.Add("n1");
-                            ListaMueve.Add("n");
-                            ListaMueve.Add("n2");
-                            ListaMueve.Add("n");
-                            ListaMueve.Add("n3");
-                            ListaThom.Add("ε");
-                            ListaThom.Add(null);
-                            ListaThom.Add("ε");
-                            ListaThom.Add(null);
-                            ListaThom.Add("ε");
+                            ListaMueve[j] = NumO+"n3";
+                            ListaMueve.Insert(j, "n");
+                            ListaMueve.Insert(j, NumO + "n2");
+                            ListaMueve.Insert(j, "n");
+                            ListaMueve.Insert(j, NumO + "n1");
+                            ListaThom[j] = "ε";
+                            ListaThom.Insert(j, null);
+                            ListaThom.Insert(j, "ε");
+                            ListaThom.Insert(j, null);
+                            ListaThom.Insert(j, "ε");
                             break;
                         }
                     }
                     if (ListaThom.Count == 0)
                     {
-                        ListaMueve.Insert(0,"n1");
-                        ListaMueve.Insert(1,"n");
-                        ListaMueve.Insert(2,"n2");
-                        ListaMueve.Insert(3,"n");
-                        ListaMueve.Insert(4,"n3");
-                        ListaThom.Insert(0,"epsilon");
-                        ListaThom.Insert(1,null);
-                        ListaThom.Insert(2,"epsilon");
-                        ListaThom.Insert(3,null);
-                        ListaThom.Insert(4,"epsilon");
+                        ListaMueve.Insert(0, NumO + "n1");
+                        ListaMueve.Insert(1, "n");
+                        ListaMueve.Insert(2, NumO + "n2");
+                        ListaMueve.Insert(3, "n");
+                        ListaMueve.Insert(4, NumO + "n3");
+                        ListaThom.Insert(0, "ε");
+                        ListaThom.Insert(1, null);
+                        ListaThom.Insert(2, "ε");
+                        ListaThom.Insert(3, null);
+                        ListaThom.Insert(4, "ε");
+                    }
+                    NumO++;
+                }
+                else if (Aux[i].Equals("?"))
+                {
+                    for (int j = 0; j < ListaThom.Count; j++)
+                    {
+                        if (ListaThom[j] == null)
+                        {
+                            ListaMueve[j] = "n5";
+                            ListaMueve.Insert(j, "n");
+                            ListaMueve.Insert(j, "n4");
+                            ListaThom[j] = "ε";
+                            ListaThom.Insert(j, null);
+                            ListaThom.Insert(j, "ε");
+                            break;
+                        }
+                    }
+                    if (ListaThom.Count == 0)
+                    {
+                        ListaMueve.Insert(0, "n4");
+                        ListaMueve.Insert(1, "n");
+                        ListaMueve.Insert(2, "n5");
+                        ListaThom.Insert(0, "ε");
+                        ListaThom.Insert(1, null);
+                        ListaThom.Insert(2, "ε");
+                    }
+                }
+                else if (Aux[i].Equals("+"))
+                {
+                    for (int j = 0; j < ListaThom.Count; j++)
+                    {
+                        if (ListaThom[j] == null)
+                        {
+                            ListaMueve[j] ="n7";
+                            ListaMueve.Insert(j, "n");
+                            ListaMueve.Insert(j, "n6");
+                            ListaThom[j] = "ε";
+                            ListaThom.Insert(j, null);
+                            ListaThom.Insert(j, "ε");
+                            break;
+                        }
+                    }
+                    if (ListaThom.Count == 0)
+                    {
+                        ListaMueve.Insert(0, "n6");
+                        ListaMueve.Insert(1, "n");
+                        ListaMueve.Insert(2, "n7");
+                        ListaThom.Insert(0, "ε");
+                        ListaThom.Insert(1, null);
+                        ListaThom.Insert(2, "ε");
+                    }
+                }
+                else if (Aux[i].Equals("*"))
+                {
+                    for (int j = 0; j < ListaThom.Count; j++)
+                    {
+                        if (ListaThom[j] == null)
+                        {
+                            ListaMueve[j] = "n9";
+                            ListaMueve.Insert(j, "n");
+                            ListaMueve.Insert(j, "n8");
+                            ListaThom[j] = "ε";
+                            ListaThom.Insert(j, null);
+                            ListaThom.Insert(j, "ε");
+                            break;
+                        }
+                    }
+                    if (ListaThom.Count == 0)
+                    {
+                        ListaMueve.Insert(0, "n8");
+                        ListaMueve.Insert(1, "n");
+                        ListaMueve.Insert(2, "n9");
+                        ListaThom.Insert(0, "ε");
+                        ListaThom.Insert(1, null);
+                        ListaThom.Insert(2, "ε");
                     }
                 }
                 else
@@ -103,25 +185,82 @@ namespace Proyecto1
             }
             for (int i = 0; i < ListaMueve.Count; i++)
             {
-                if (ListaMueve[i].ToString() == "n1")
-                {
-                    String auxN = (i + 2).ToString();
-                    for (int j = i; j < ListaMueve.Count; j++)
+                Console.WriteLine(ListaMueve[i]);
+            }
+            String N2 = "";
+            String N8 = "";
+            String N6 = "";
+            for (int i = 0; i < ListaMueve.Count; i++)
+            {
+                try {
+                    if (ListaMueve[i].ToString() == "n4")
                     {
-                        if (ListaMueve[j].ToString() == "n2")
+                        ListaMueve[i] = (i + 2)+","+(i+4);
+                    }
+                    else if (ListaMueve[i].ToString() == "n5")
+                    {
+                        ListaMueve[i] = i + 2;
+                    }
+                    else if (ListaMueve[i].ToString() == "n6")
+                    {
+                        ListaMueve[i] = i + 2;
+                        N6 = (i + 2).ToString();
+                    }
+                    else if (ListaMueve[i].ToString() == "n7")
+                    {
+                        ListaMueve[i] = N6+","+(i + 2);
+                        N6 = "";
+                    }
+                    else if (ListaMueve[i].ToString() == "n8")
+                    {
+                        String auxN = (i + 2).ToString();
+                        for (int j = i; j < ListaMueve.Count ; j++)
                         {
-                            auxN = auxN + "," + (j + 2).ToString();
-                            ListaMueve[i] = auxN;
-                            break;
+                            if (ListaMueve[j].ToString() == "n9")
+                            {
+                                auxN = auxN + "," + (j + 2).ToString();
+                                N8 = auxN;
+                                ListaMueve[i] = auxN;
+                                break;
+                            }
                         }
                     }
-                    } else if (ListaMueve[i].ToString() == "n2")
-                {
-                    ListaMueve[i] = i + 4;
-                } else if (ListaMueve[i].ToString() == "n3")
-                {
-                    ListaMueve[i] = i + 2;
+                    else if (ListaMueve[i].ToString() == "n9")
+                    {
+                        ListaMueve[i] = N8;
+                        N8 = "";
+                    }
+                    else if (ListaMueve[i].ToString()[2] == '1')
+                    {
+                        for (int j = i; j < ListaMueve.Count; j++)
+                        {
+                            N2 = (i + 2).ToString();
+                            String aValuar = ListaMueve[i].ToString()[0] + "n2";
+                            if (ListaMueve[j].ToString().Equals(aValuar))
+                            {
+                                ListaMueve[i] = N2 + "," + (j + 2).ToString();
+                                N2 = "";
+                                break;
+                            }
+                        }
+                    }
+                    else if (ListaMueve[i].ToString()[2] == '2')
+                    {
+                        for (int j = i; j < ListaMueve.Count; j++)
+                        {
+                            if (ListaMueve[j].ToString() == ListaMueve[i].ToString()[0] + "n3")
+                            {
+                                ListaMueve[i] = j + 2;
+                                break;
+                            }
+                        }
+                    }
+                    else if (ListaMueve[i].ToString()[2] == '3')
+                    {
+                        ListaMueve[i] = i + 2;
+                    }
                 }
+                catch { }
             }
         }
 
