@@ -12,16 +12,22 @@ namespace Proyecto1
     class Thompson
     {
         static int NumO;
+        static int ConjuntoChar;
         String ruta;
         StringBuilder grafo;
         ArrayList Aux = new ArrayList();
-        ArrayList ListaThom = new ArrayList();
-        ArrayList ListaMueve = new ArrayList();
+        static ArrayList ListaThom = new ArrayList();
+        static ArrayList ListaMueve = new ArrayList();
+        static ArrayList ListaConjun = new ArrayList();
         public void Inicio(String filtro)
         {
             NumO = 0;
+            ConjuntoChar = 65;
             ruta = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             Aux.Clear();
+            ListaConjun.Clear();
+            ListaMueve.Clear();
+            ListaThom.Clear();
             //llenar aux con la expresion regular
             for (int i = 0; i < Form1.ER.Count; i++)
             {
@@ -33,9 +39,12 @@ namespace Proyecto1
             //Cargar lista con thompson
             CargarThompson();
             graficar();
-
-
+            Cerradura(0);
+            for (int i = 0; i < ListaConjun.Count; i++)
+            {
+                Console.WriteLine(ListaConjun[i]);
             }
+        }
         public void CargarThompson()
         {
             for (int i = 0; i < Aux.Count; i++)
@@ -183,10 +192,6 @@ namespace Proyecto1
                     }
                 }
             }
-            for (int i = 0; i < ListaMueve.Count; i++)
-            {
-                Console.WriteLine(ListaMueve[i]);
-            }
             String N2 = "";
             String N8 = "";
             String N6 = "";
@@ -290,9 +295,33 @@ namespace Proyecto1
             {
                 grafo.Append((i+1)+ "->"+ListaMueve[i]+"[label=\""+ ListaThom[i] + "\"];");
             }
+            grafo.Append((ListaThom.Count + 1).ToString()+ "[peripheries=2 shape=circle];");
             grafo.Append("}");
             generar_dot(rdot,rpng);
         }
-
+        static void Cerradura(int var) {
+            Console.WriteLine("var = " + var);
+            if (ListaThom[var].ToString() == "ε") {
+                ListaConjun.Add(var + 1);
+                if (ListaMueve[var].ToString().Length > 1)
+                {
+                    string[] words = ListaMueve[var].ToString().Split(',');
+                    ListaConjun.Add(words[0]);
+                    int auxb = Int32.Parse(words[0].ToString());
+                    Cerradura(auxb-1);
+                    ListaConjun.Add(words[1]);
+                    int auxa = Int32.Parse(words[1].ToString());
+                    Cerradura(auxa-1);
+                    return;
+                }
+                else {
+                    ListaConjun.Add(ListaMueve[var]);
+                    Cerradura(Int32.Parse(ListaMueve[var].ToString())-1);
+                    return;
+                }
+            }
+            ConjuntoChar++;
+            
+        }
     }
 }
