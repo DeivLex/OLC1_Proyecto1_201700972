@@ -16,14 +16,16 @@ namespace Proyecto1
         String ruta;
         StringBuilder grafo;
         ArrayList Aux = new ArrayList();
+        static ArrayList ListaTerminales = new ArrayList();
         static ArrayList ListaThom = new ArrayList();
         static ArrayList ListaMueve = new ArrayList();
-        static ArrayList ListaConjun = new ArrayList();
+        static List<List<String>> ListaConjun = new List<List<String>>();
         public void Inicio(String filtro)
         {
             NumO = 0;
             ConjuntoChar = 65;
             ruta = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            ListaTerminales.Clear();
             Aux.Clear();
             ListaConjun.Clear();
             ListaMueve.Clear();
@@ -38,11 +40,16 @@ namespace Proyecto1
             }
             //Cargar lista con thompson
             CargarThompson();
+            //graficar
             graficar();
+            //inicializar cerradura
+            ListaConjun.Add(new List<string>());
+            ListaConjun[0].Add(((char)ConjuntoChar).ToString());
             Cerradura(0);
-            for (int i = 0; i < ListaConjun.Count; i++)
+            //imprimir cerradura
+            for (int i = 0; i < ListaConjun[0].Count; i++)
             {
-                Console.WriteLine(ListaConjun[i]);
+                Console.WriteLine(ListaConjun[0][i]);
             }
         }
         public void CargarThompson()
@@ -185,6 +192,7 @@ namespace Proyecto1
                     {
                         if (ListaThom[j] == null)
                         {
+                            ListaTerminales.Add(Aux[i]);
                             ListaThom[j] = Aux[i];
                             ListaMueve[j] = j + 2;
                             break;
@@ -268,7 +276,6 @@ namespace Proyecto1
                 catch { }
             }
         }
-
         public void generar_dot(String rdot,String rpng)
         {
             System.IO.File.WriteAllText(rdot,grafo.ToString());
@@ -300,28 +307,73 @@ namespace Proyecto1
             generar_dot(rdot,rpng);
         }
         static void Cerradura(int var) {
-            Console.WriteLine("var = " + var);
-            if (ListaThom[var].ToString() == "ε") {
-                ListaConjun.Add(var + 1);
+            Console.WriteLine("Conjunto actual = "+(char)ConjuntoChar);
+            Console.WriteLine("Var = " + var);
+            int IndexActual = (ConjuntoChar - 65);
+            addPivote(var,IndexActual);
+            if (ListaThom[var].ToString() == "ε")
+            {
                 if (ListaMueve[var].ToString().Length > 1)
                 {
                     string[] words = ListaMueve[var].ToString().Split(',');
-                    ListaConjun.Add(words[0]);
+                    ListaConjun[IndexActual].Add(words[0]);
                     int auxb = Int32.Parse(words[0].ToString());
-                    Cerradura(auxb-1);
-                    ListaConjun.Add(words[1]);
+                    Cerradura(auxb - 1);
+                    ListaConjun[IndexActual].Add(words[1]);
                     int auxa = Int32.Parse(words[1].ToString());
-                    Cerradura(auxa-1);
-                    return;
+                    Cerradura(auxa - 1);
                 }
-                else {
-                    ListaConjun.Add(ListaMueve[var]);
-                    Cerradura(Int32.Parse(ListaMueve[var].ToString())-1);
-                    return;
+                else
+                {
+                    ListaConjun[IndexActual].Add(ListaMueve[var].ToString());
+                    Cerradura(Int32.Parse(ListaMueve[var].ToString()) - 1);
                 }
             }
-            ConjuntoChar++;
-            
+            else {
+                return;
+            }
+            Console.WriteLine("Si salio del bucle");
+            String con = ((char)ConjuntoChar).ToString();
+            for (int i = 0; i < ListaTerminales.Count; i++)
+            {
+                Ir(con,ListaTerminales[i].ToString());
+            }
+        }
+        static void Ir(String Conjunto, String Simbolo) {
+            Console.WriteLine("Ir("+Conjunto+","+Simbolo+")");
+            for (int i=0;i<ListaConjun.Count;i++) {
+                Console.WriteLine("i del bucle conjunto: "+i+" conjunto: "+Conjunto);
+                if (ListaConjun[i][0].Equals(Conjunto)) {
+                    Console.WriteLine("Si entro a conjunto");
+                    for (int j = 1; j < ListaConjun[i].Count; j++)
+                    {
+                        int valu = Int32.Parse(ListaConjun[i][j].ToString())-1;
+                        if (ListaThom[valu].ToString()==Simbolo) {
+                            Console.WriteLine("Si reconoce "+Simbolo);
+                            ConjuntoChar++;
+                            ListaConjun.Add(new List<string>());
+                            int IndexActual = (ConjuntoChar - 65);
+                            ListaConjun[IndexActual].Add(((char)ConjuntoChar).ToString());
+                            Cerradura(Int32.Parse(ListaMueve[valu].ToString())-1);
+                            return;
+                        } 
+                    }
+                    break;
+                }
+            } 
+        }
+        static void addPivote(int var,int IndexActual) {
+            bool existe = false;
+            for (int k = 0; k < ListaConjun[IndexActual].Count; k++)
+            {
+                if(ListaConjun[IndexActual][k].Equals((var + 1).ToString())){
+                    existe = true;
+                }
+            }
+            if (existe==false)
+            {
+                ListaConjun[IndexActual].Add((var + 1).ToString());
+            }
         }
     }
 }
