@@ -13,19 +13,21 @@ namespace Proyecto1
     {
         static int NumO;
         static int ConjuntoChar;
+        static int NumeroEstado;
         String ruta;
         StringBuilder grafo;
         ArrayList Aux = new ArrayList();
-        static ArrayList ListaTerminales = new ArrayList();
+        static ArrayList AFD = new ArrayList();
         static ArrayList ListaThom = new ArrayList();
         static ArrayList ListaMueve = new ArrayList();
         static List<List<String>> ListaConjun = new List<List<String>>();
         public void Inicio(String filtro)
         {
+            NumeroEstado = 1;
             NumO = 0;
             ConjuntoChar = 65;
             ruta = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            ListaTerminales.Clear();
+            AFD.Clear();
             Aux.Clear();
             ListaConjun.Clear();
             ListaMueve.Clear();
@@ -42,15 +44,19 @@ namespace Proyecto1
             CargarThompson();
             //graficar
             graficar();
+            ListaMueve.Add(null);
+            ListaThom.Add(null);
             //inicializar cerradura
             ListaConjun.Add(new List<string>());
             ListaConjun[0].Add(((char)ConjuntoChar).ToString());
             Cerradura(0);
-            //imprimir cerradura
-            for (int i = 0; i < ListaConjun[0].Count; i++)
+            //imprimir AFD
+            for (int j = 0; j < AFD.Count; j++)
             {
-                Console.WriteLine(ListaConjun[0][i]);
+                Console.WriteLine(AFD[j]);
             }
+            //graficar AFD
+            graficarAFD();
         }
         public void CargarThompson()
         {
@@ -192,7 +198,6 @@ namespace Proyecto1
                     {
                         if (ListaThom[j] == null)
                         {
-                            ListaTerminales.Add(Aux[i]);
                             ListaThom[j] = Aux[i];
                             ListaMueve[j] = j + 2;
                             break;
@@ -313,8 +318,9 @@ namespace Proyecto1
             addPivote(var,IndexActual);
             if (ListaThom[var].ToString() == "ε")
             {
-                if (ListaMueve[var].ToString().Length > 1)
+                if (ListaMueve[var].ToString().Length >= 2)
                 {
+                    Console.WriteLine("SI TIENE EPSILON CASO 1: " + var);
                     string[] words = ListaMueve[var].ToString().Split(',');
                     ListaConjun[IndexActual].Add(words[0]);
                     int auxb = Int32.Parse(words[0].ToString());
@@ -325,42 +331,44 @@ namespace Proyecto1
                 }
                 else
                 {
+                    Console.WriteLine("SI TIENE EPSILON CASO 2: " + var);
                     ListaConjun[IndexActual].Add(ListaMueve[var].ToString());
                     Cerradura(Int32.Parse(ListaMueve[var].ToString()) - 1);
                 }
             }
             else {
-                return;
-            }
-            Console.WriteLine("Si salio del bucle");
-            String con = ((char)ConjuntoChar).ToString();
-            for (int i = 0; i < ListaTerminales.Count; i++)
-            {
-                Ir(con,ListaTerminales[i].ToString());
+                Console.WriteLine("NO TIENE EPSILON: "+var);
+                AFD.Add("S"+IndexActual+ "->S"+(NumeroEstado)+ "[label=\"" +ListaThom[var].ToString() + "\"];");
+                NumeroEstado++;
+                Ir(IndexActual, NumeroEstado, Int32.Parse(ListaMueve[var].ToString()) - 1);
             }
         }
-        static void Ir(String Conjunto, String Simbolo) {
-            Console.WriteLine("Ir("+Conjunto+","+Simbolo+")");
-            for (int i=0;i<ListaConjun.Count;i++) {
-                Console.WriteLine("i del bucle conjunto: "+i+" conjunto: "+Conjunto);
-                if (ListaConjun[i][0].Equals(Conjunto)) {
-                    Console.WriteLine("Si entro a conjunto");
-                    for (int j = 1; j < ListaConjun[i].Count; j++)
-                    {
-                        int valu = Int32.Parse(ListaConjun[i][j].ToString())-1;
-                        if (ListaThom[valu].ToString()==Simbolo) {
-                            Console.WriteLine("Si reconoce "+Simbolo);
-                            ConjuntoChar++;
-                            ListaConjun.Add(new List<string>());
-                            int IndexActual = (ConjuntoChar - 65);
-                            ListaConjun[IndexActual].Add(((char)ConjuntoChar).ToString());
-                            Cerradura(Int32.Parse(ListaMueve[valu].ToString())-1);
-                            return;
-                        } 
-                    }
-                    break;
+        static void Ir(int IndexActual,int numEs, int var) {
+            IndexActual++;
+            if (ListaThom[var] == null)
+            {
+                AFD.Add("S"+(numEs - 1)+ "[peripheries=2 shape=circle];");
+                return;
+            }
+            else if (ListaThom[var].ToString() == "ε")
+            {
+                if (ListaMueve[var].ToString().Length >= 2)
+                {
+                    Console.WriteLine("SI TIENE EPSILON CASO 1: " + var);
+                    Ir(IndexActual, NumeroEstado, var + 1);
                 }
-            } 
+                else
+                {
+                    Console.WriteLine("SI TIENE EPSILON CASO 2: " + var);
+                    Ir(IndexActual, NumeroEstado, Int32.Parse(ListaMueve[var].ToString()) - 1);
+                }
+            }else
+            {
+                Console.WriteLine("NO TIENE EPSILON: " + var);
+                AFD.Add("S" + IndexActual + "->S" + (NumeroEstado) + "[label=\"" + ListaThom[var].ToString() + "\"];");
+                NumeroEstado++;
+                Ir(IndexActual, NumeroEstado, Int32.Parse(ListaMueve[var].ToString()) - 1);
+            }
         }
         static void addPivote(int var,int IndexActual) {
             bool existe = false;
@@ -374,6 +382,20 @@ namespace Proyecto1
             {
                 ListaConjun[IndexActual].Add((var + 1).ToString());
             }
+        }
+        public void graficarAFD()
+        {
+            grafo = new StringBuilder();
+            String rdot = ruta + "\\AFD.dot";
+            String rpng = ruta + "\\AFD.png";
+            grafo.Append("digraph G {");
+            grafo.Append("rankdir=\"LR\";");
+            for (int i = 0; i < AFD.Count; i++)
+            {
+                grafo.Append(AFD[i]);
+            }
+            grafo.Append("}");
+            generar_dot(rdot, rpng);
         }
     }
 }
