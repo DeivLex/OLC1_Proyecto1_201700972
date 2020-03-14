@@ -372,31 +372,40 @@ namespace Proyecto1
                     string[] words = ListaMueve[var].ToString().Split(',');
                     //caso 1
                     int auxb = Int32.Parse(words[0].ToString());
-                    if (Int32.Parse(ListaMueve[auxb - 1].ToString())>var) {
-                        Console.WriteLine("SI TIENE EPSILON CASO 1.1(con regreso): " + var);
+                    Console.WriteLine("auxb = "+auxb+" var = "+var);
+                    if ((var+1)>auxb) {
+                        Console.WriteLine("SI TIENE EPSILON CASO 1.1(con regreso)");
                         if (Numas < 1)
                         {
-                            AFD.Add("S" + (numEs - 1) + "[peripheries=2 shape=circle];");
+                            //AFD.Add("S" + (numEs - 1) + "[peripheries=2 shape=circle];");
                             Numas++;
                             Ir(IndexActual, NumeroEstado, auxb - 1);
-                        } else if (Numas==1) {
-                            AFD.Add("S" + (numEs - 1) + "[peripheries=2 shape=circle];");
+                        }
+                        else if (Numas == 1)
+                        {
                             Numas++;
                             NumeroEstado--;
                             Ir(IndexActual, NumeroEstado, auxb - 1);
                         }
-                    } else {
+                        else {
+                            return;
+                        }
+                    }
+                    else {
                         Console.WriteLine("SI TIENE EPSILON CASO 1.1: " + var);
                         IndexActual = NumeroEstado - 2;
                         Ir(IndexActual, NumeroEstado, auxb - 1);
                     }
                     //caso 2 ---------------------------------
                     int auxa = Int32.Parse(words[1].ToString());
-                    if (ListaMueve[auxa-1]==null) {
+                    if (ListaMueve[auxa - 1] == null)
+                    {
                         Console.WriteLine("SI TIENE EPSILON CASO 1.2(con aceptacion): " + var);
                         AFD.Add("S" + (numEs - 1) + "[peripheries=2 shape=circle];");
                         return;
-                    } else {
+                    }
+                    else
+                    {
                         Console.WriteLine("SI TIENE EPSILON CASO 1.2: " + var);
                         Ir(IndexActual, NumeroEstado, auxa - 1);
                     }
@@ -413,6 +422,7 @@ namespace Proyecto1
                 AFD.Add("S" + IndexActual + "->S" + (NumeroEstado) + "[label=\"" + ListaThom[var].ToString() + "\"];");
                 NumeroEstado++;
                 Ir(IndexActual, NumeroEstado, Int32.Parse(ListaMueve[var].ToString()) - 1);
+               
             }
         }
         static void addPivote(int var) {
