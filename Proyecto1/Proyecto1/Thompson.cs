@@ -11,6 +11,7 @@ namespace Proyecto1
 
     class Thompson
     {
+        static int Numas;
         static int NumO;
         static int ConjuntoChar;
         static int NumeroEstado;
@@ -20,9 +21,10 @@ namespace Proyecto1
         static ArrayList AFD = new ArrayList();
         static ArrayList ListaThom = new ArrayList();
         static ArrayList ListaMueve = new ArrayList();
-        static List<List<String>> ListaConjun = new List<List<String>>();
+        static ArrayList ListaConjun = new ArrayList();
         public void Inicio(String filtro)
         {
+            Numas = 0;
             NumeroEstado = 1;
             NumO = 0;
             ConjuntoChar = 65;
@@ -47,8 +49,7 @@ namespace Proyecto1
             ListaMueve.Add(null);
             ListaThom.Add(null);
             //inicializar cerradura
-            ListaConjun.Add(new List<string>());
-            ListaConjun[0].Add(((char)ConjuntoChar).ToString());
+            ListaConjun.Add(((char)ConjuntoChar).ToString());
             Cerradura(0);
             //imprimir AFD
             for (int j = 0; j < AFD.Count; j++)
@@ -213,7 +214,16 @@ namespace Proyecto1
                 try {
                     if (ListaMueve[i].ToString() == "n4")
                     {
-                        ListaMueve[i] = (i + 2)+","+(i+4);
+                        String auxN = (i + 2).ToString();
+                        for (int j = i; j < ListaMueve.Count; j++)
+                        {
+                            if (ListaMueve[j].ToString() == "n5")
+                            {
+                                auxN = auxN + "," + (j + 2).ToString();
+                                ListaMueve[i] = auxN;
+                                break;
+                            }
+                        }
                     }
                     else if (ListaMueve[i].ToString() == "n5")
                     {
@@ -312,27 +322,31 @@ namespace Proyecto1
             generar_dot(rdot,rpng);
         }
         static void Cerradura(int var) {
-            Console.WriteLine("Conjunto actual = "+(char)ConjuntoChar);
             Console.WriteLine("Var = " + var);
             int IndexActual = (ConjuntoChar - 65);
-            addPivote(var,IndexActual);
-            if (ListaThom[var].ToString() == "ε")
+            addPivote(var);
+            if (ListaThom[var] == null)
             {
-                if (ListaMueve[var].ToString().Length >= 2)
+                AFD.Add("S" + (NumeroEstado - 1) + "[peripheries=2 shape=circle];");
+                return;
+            }else if (ListaThom[var].ToString() == "ε")
+            {
+                bool b = ListaMueve[var].ToString().Contains(","); 
+                if (b==true)
                 {
                     Console.WriteLine("SI TIENE EPSILON CASO 1: " + var);
                     string[] words = ListaMueve[var].ToString().Split(',');
-                    ListaConjun[IndexActual].Add(words[0]);
+                    ListaConjun.Add(words[0]);
                     int auxb = Int32.Parse(words[0].ToString());
                     Cerradura(auxb - 1);
-                    ListaConjun[IndexActual].Add(words[1]);
+                    ListaConjun.Add(words[1]);
                     int auxa = Int32.Parse(words[1].ToString());
                     Cerradura(auxa - 1);
                 }
                 else
                 {
                     Console.WriteLine("SI TIENE EPSILON CASO 2: " + var);
-                    ListaConjun[IndexActual].Add(ListaMueve[var].ToString());
+                    ListaConjun.Add(ListaMueve[var].ToString());
                     Cerradura(Int32.Parse(ListaMueve[var].ToString()) - 1);
                 }
             }
@@ -342,9 +356,9 @@ namespace Proyecto1
                 NumeroEstado++;
                 Ir(IndexActual, NumeroEstado, Int32.Parse(ListaMueve[var].ToString()) - 1);
             }
+            EsAceptacion();
         }
         static void Ir(int IndexActual,int numEs, int var) {
-            IndexActual++;
             if (ListaThom[var] == null)
             {
                 AFD.Add("S"+(numEs - 1)+ "[peripheries=2 shape=circle];");
@@ -352,10 +366,40 @@ namespace Proyecto1
             }
             else if (ListaThom[var].ToString() == "ε")
             {
-                if (ListaMueve[var].ToString().Length >= 2)
+                bool b = ListaMueve[var].ToString().Contains(",");
+                if (b == true)
                 {
-                    Console.WriteLine("SI TIENE EPSILON CASO 1: " + var);
-                    Ir(IndexActual, NumeroEstado, var + 1);
+                    string[] words = ListaMueve[var].ToString().Split(',');
+                    //caso 1
+                    int auxb = Int32.Parse(words[0].ToString());
+                    if (Int32.Parse(ListaMueve[auxb - 1].ToString())>var) {
+                        Console.WriteLine("SI TIENE EPSILON CASO 1.1(con regreso): " + var);
+                        if (Numas < 1)
+                        {
+                            AFD.Add("S" + (numEs - 1) + "[peripheries=2 shape=circle];");
+                            Numas++;
+                            Ir(IndexActual, NumeroEstado, auxb - 1);
+                        } else if (Numas==1) {
+                            AFD.Add("S" + (numEs - 1) + "[peripheries=2 shape=circle];");
+                            Numas++;
+                            NumeroEstado--;
+                            Ir(IndexActual, NumeroEstado, auxb - 1);
+                        }
+                    } else {
+                        Console.WriteLine("SI TIENE EPSILON CASO 1.1: " + var);
+                        IndexActual = NumeroEstado - 2;
+                        Ir(IndexActual, NumeroEstado, auxb - 1);
+                    }
+                    //caso 2 ---------------------------------
+                    int auxa = Int32.Parse(words[1].ToString());
+                    if (ListaMueve[auxa-1]==null) {
+                        Console.WriteLine("SI TIENE EPSILON CASO 1.2(con aceptacion): " + var);
+                        AFD.Add("S" + (numEs - 1) + "[peripheries=2 shape=circle];");
+                        return;
+                    } else {
+                        Console.WriteLine("SI TIENE EPSILON CASO 1.2: " + var);
+                        Ir(IndexActual, NumeroEstado, auxa - 1);
+                    }
                 }
                 else
                 {
@@ -364,23 +408,39 @@ namespace Proyecto1
                 }
             }else
             {
+                IndexActual++;
                 Console.WriteLine("NO TIENE EPSILON: " + var);
                 AFD.Add("S" + IndexActual + "->S" + (NumeroEstado) + "[label=\"" + ListaThom[var].ToString() + "\"];");
                 NumeroEstado++;
                 Ir(IndexActual, NumeroEstado, Int32.Parse(ListaMueve[var].ToString()) - 1);
             }
         }
-        static void addPivote(int var,int IndexActual) {
+        static void addPivote(int var) {
             bool existe = false;
-            for (int k = 0; k < ListaConjun[IndexActual].Count; k++)
+            for (int k = 0; k < ListaConjun.Count; k++)
             {
-                if(ListaConjun[IndexActual][k].Equals((var + 1).ToString())){
+                if(ListaConjun[k].Equals((var + 1).ToString())){
                     existe = true;
                 }
             }
             if (existe==false)
             {
-                ListaConjun[IndexActual].Add((var + 1).ToString());
+                ListaConjun.Add((var + 1).ToString());
+            }
+        }
+        static void EsAceptacion()
+        {
+            bool existe = false;
+            for (int k = 0; k < ListaConjun.Count; k++)
+            {
+                if (ListaConjun[k].Equals((ListaMueve.Count).ToString()))
+                {
+                    existe = true;
+                }
+            }
+            if (existe == true)
+            {
+                AFD.Add("S0[peripheries=2 shape=circle];");
             }
         }
         public void graficarAFD()
