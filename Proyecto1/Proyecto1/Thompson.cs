@@ -11,24 +11,22 @@ namespace Proyecto1
 
     class Thompson
     {
-        static int Numas;
         static int NumO;
         static int ConjuntoChar;
-        static int NumeroEstado;
         String ruta;
         StringBuilder grafo;
+        static ArrayList AuxLetra = new ArrayList();
         ArrayList Aux = new ArrayList();
         static ArrayList AFD = new ArrayList();
         static ArrayList ListaThom = new ArrayList();
         static ArrayList ListaMueve = new ArrayList();
-        static ArrayList ListaConjun = new ArrayList();
+        static List<List<String>> ListaConjun = new List<List<String>>();
         public void Inicio(String filtro)
         {
-            Numas = 0;
-            NumeroEstado = 1;
             NumO = 0;
             ConjuntoChar = 65;
             ruta = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            AuxLetra.Clear();
             AFD.Clear();
             Aux.Clear();
             ListaConjun.Clear();
@@ -49,15 +47,45 @@ namespace Proyecto1
             ListaMueve.Add(null);
             ListaThom.Add(null);
             //inicializar cerradura
-            ListaConjun.Add(((char)ConjuntoChar).ToString());
+            ListaConjun.Add(new List<String>());
+            ListaConjun[0].Add(((char)ConjuntoChar).ToString());
+            ListaConjun[0].Add((1).ToString());
             Cerradura(0);
-            //imprimir AFD
-            for (int j = 0; j < AFD.Count; j++)
+            ConjuntoChar++;
+            for (int i = 0; i < ListaThom.Count-1; i++)
             {
-                Console.WriteLine(AFD[j]);
+                if (ListaThom[i].ToString()!="ε") {
+                    int IndexActual = (ConjuntoChar - 65);
+                    AuxLetra.Add(ListaThom[i].ToString());
+                    AuxLetra.Add(((char)ConjuntoChar).ToString());
+                    ListaConjun.Add(new List<String>());
+                    ListaConjun[IndexActual].Add(((char)ConjuntoChar).ToString());
+                    ListaConjun[IndexActual].Add((i + 2).ToString());
+                    Cerradura(i + 1);
+                    ConjuntoChar++;
+                }
             }
+            for (int i = 0; i < AuxLetra.Count; i++)
+            {
+                Console.WriteLine(AuxLetra[i]);
+            }
+                //imprimir Lista Conjun
+            for (int i = 0; i < ListaConjun.Count; i++)
+            {
+                    for (int j = 0; j < ListaConjun[i].Count; j++)
+                {
+                    Console.Write(ListaConjun[i][j]+"--->");
+                }
+                Console.WriteLine();
+            }
+            Ir();
             //graficar AFD
             graficarAFD();
+            //Imprimir AFD
+            for (int i = 0; i < AFD.Count; i++)
+            {
+                Console.WriteLine(AFD[i]);
+            }
         }
         public void CargarThompson()
         {
@@ -321,47 +349,38 @@ namespace Proyecto1
             grafo.Append("}");
             generar_dot(rdot,rpng);
         }
-        static void Cerradura(int var) {
-            Console.WriteLine("Var = " + var);
-            int IndexActual = (ConjuntoChar - 65);
-            addPivote(var);
-            if (ListaThom[var] == null)
+        static void Ir() {
+            for (int i = 0; i < ListaConjun.Count; i++)
             {
-                AFD.Add("S" + (NumeroEstado - 1) + "[peripheries=2 shape=circle];");
-                return;
-            }else if (ListaThom[var].ToString() == "ε")
-            {
-                bool b = ListaMueve[var].ToString().Contains(","); 
-                if (b==true)
+                for (int j = 1; j < ListaConjun[i].Count; j++)
                 {
-                    Console.WriteLine("SI TIENE EPSILON CASO 1: " + var);
-                    string[] words = ListaMueve[var].ToString().Split(',');
-                    ListaConjun.Add(words[0]);
-                    int auxb = Int32.Parse(words[0].ToString());
-                    Cerradura(auxb - 1);
-                    ListaConjun.Add(words[1]);
-                    int auxa = Int32.Parse(words[1].ToString());
-                    Cerradura(auxa - 1);
-                }
-                else
-                {
-                    Console.WriteLine("SI TIENE EPSILON CASO 2: " + var);
-                    ListaConjun.Add(ListaMueve[var].ToString());
-                    Cerradura(Int32.Parse(ListaMueve[var].ToString()) - 1);
+                    int hola = Int32.Parse(ListaConjun[i][j].ToString());
+                    if (ListaThom[hola - 1]!=null) {
+                        if (ListaThom[hola - 1].ToString() != "ε")
+                        {
+                            int le = Int32.Parse(ListaConjun[i][j].ToString());
+                            AFD.Add(ListaConjun[i][0].ToString() + "->" + BuscarL(ListaThom[le-1].ToString()) + "[label=\"" + ListaThom[le - 1].ToString() + "\"];");
+                        }
+                    }
                 }
             }
-            else {
-                Console.WriteLine("NO TIENE EPSILON: "+var);
-                AFD.Add("S"+IndexActual+ "->S"+(NumeroEstado)+ "[label=\"" +ListaThom[var].ToString() + "\"];");
-                NumeroEstado++;
-                Ir(IndexActual, NumeroEstado, Int32.Parse(ListaMueve[var].ToString()) - 1);
-            }
-            EsAceptacion();
         }
-        static void Ir(int IndexActual,int numEs, int var) {
+        static String BuscarL(String letra) {
+            for (int i = 0; i < AuxLetra.Count; i++)
+            {
+                if (AuxLetra[i].ToString().Equals(letra))
+                {
+                    return AuxLetra[i + 1].ToString();
+                }
+            }
+            return letra;
+        }
+        static void Cerradura(int var)
+        {
+            int IndexActual = (ConjuntoChar - 65);
             if (ListaThom[var] == null)
             {
-                AFD.Add("S"+(numEs - 1)+ "[peripheries=2 shape=circle];");
+                AFD.Add((char)ConjuntoChar+ "[peripheries=2 shape=circle];");
                 return;
             }
             else if (ListaThom[var].ToString() == "ε")
@@ -369,88 +388,37 @@ namespace Proyecto1
                 bool b = ListaMueve[var].ToString().Contains(",");
                 if (b == true)
                 {
+                    Console.WriteLine("SI TIENE EPSILON CASO 1: " + var);
                     string[] words = ListaMueve[var].ToString().Split(',');
-                    //caso 1
+                    addPivote(IndexActual, Int32.Parse(words[0].ToString()));
+                    Console.WriteLine("Si agrego: "+ Int32.Parse(words[0].ToString())+" = "+ (char)ConjuntoChar);
                     int auxb = Int32.Parse(words[0].ToString());
-                    Console.WriteLine("auxb = "+auxb+" var = "+var);
-                    if ((var+1)>auxb) {
-                        Console.WriteLine("SI TIENE EPSILON CASO 1.1(con regreso)");
-                        if (Numas < 1)
-                        {
-                            //AFD.Add("S" + (numEs - 1) + "[peripheries=2 shape=circle];");
-                            Numas++;
-                            Ir(IndexActual, NumeroEstado, auxb - 1);
-                        }
-                        else if (Numas == 1)
-                        {
-                            Numas++;
-                            NumeroEstado--;
-                            Ir(IndexActual, NumeroEstado, auxb - 1);
-                        }
-                        else {
-                            return;
-                        }
-                    }
-                    else {
-                        Console.WriteLine("SI TIENE EPSILON CASO 1.1: " + var);
-                        IndexActual = NumeroEstado - 2;
-                        Ir(IndexActual, NumeroEstado, auxb - 1);
-                    }
-                    //caso 2 ---------------------------------
+                    Cerradura(auxb - 1);
+                    addPivote(IndexActual, Int32.Parse(words[1].ToString()));
+                    Console.WriteLine("Si agrego: " + Int32.Parse(words[1].ToString()) + " = " + (char)ConjuntoChar);
                     int auxa = Int32.Parse(words[1].ToString());
-                    if (ListaMueve[auxa - 1] == null)
-                    {
-                        Console.WriteLine("SI TIENE EPSILON CASO 1.2(con aceptacion): " + var);
-                        AFD.Add("S" + (numEs - 1) + "[peripheries=2 shape=circle];");
-                        return;
-                    }
-                    else
-                    {
-                        Console.WriteLine("SI TIENE EPSILON CASO 1.2: " + var);
-                        Ir(IndexActual, NumeroEstado, auxa - 1);
-                    }
+                    Cerradura(auxa - 1);
                 }
                 else
                 {
                     Console.WriteLine("SI TIENE EPSILON CASO 2: " + var);
-                    Ir(IndexActual, NumeroEstado, Int32.Parse(ListaMueve[var].ToString()) - 1);
+                    addPivote(IndexActual,Int32.Parse(ListaMueve[var].ToString()));
+                    Cerradura(Int32.Parse(ListaMueve[var].ToString()) - 1);
                 }
-            }else
-            {
-                IndexActual++;
-                Console.WriteLine("NO TIENE EPSILON: " + var);
-                AFD.Add("S" + IndexActual + "->S" + (NumeroEstado) + "[label=\"" + ListaThom[var].ToString() + "\"];");
-                NumeroEstado++;
-                Ir(IndexActual, NumeroEstado, Int32.Parse(ListaMueve[var].ToString()) - 1);
-               
             }
         }
-        static void addPivote(int var) {
+        static void addPivote(int IndexActual,int var) {
             bool existe = false;
-            for (int k = 0; k < ListaConjun.Count; k++)
+            for (int k = 1; k < ListaConjun[IndexActual].Count; k++)
             {
-                if(ListaConjun[k].Equals((var + 1).ToString())){
+                if(ListaConjun[IndexActual][k].Equals((var).ToString())){
                     existe = true;
                 }
             }
             if (existe==false)
             {
-                ListaConjun.Add((var + 1).ToString());
-            }
-        }
-        static void EsAceptacion()
-        {
-            bool existe = false;
-            for (int k = 0; k < ListaConjun.Count; k++)
-            {
-                if (ListaConjun[k].Equals((ListaMueve.Count).ToString()))
-                {
-                    existe = true;
-                }
-            }
-            if (existe == true)
-            {
-                AFD.Add("S0[peripheries=2 shape=circle];");
+                Console.WriteLine("ADD = " + var);
+                ListaConjun[IndexActual].Add((var).ToString());
             }
         }
         public void graficarAFD()
