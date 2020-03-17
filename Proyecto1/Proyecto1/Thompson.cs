@@ -17,15 +17,19 @@ namespace Proyecto1
         StringBuilder grafo;
         static ArrayList AuxLetra = new ArrayList();
         ArrayList Aux = new ArrayList();
+        static ArrayList AuxTran = new ArrayList();
         static ArrayList AFD = new ArrayList();
         static ArrayList ListaThom = new ArrayList();
         static ArrayList ListaMueve = new ArrayList();
         static List<List<String>> ListaConjun = new List<List<String>>();
+        
+
         public void Inicio(String filtro)
         {
             NumO = 0;
             ConjuntoChar = 65;
             ruta = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            AuxTran.Clear();
             AuxLetra.Clear();
             AFD.Clear();
             Aux.Clear();
@@ -58,6 +62,7 @@ namespace Proyecto1
                     int IndexActual = (ConjuntoChar - 65);
                     AuxLetra.Add(ListaThom[i].ToString());
                     AuxLetra.Add(((char)ConjuntoChar).ToString());
+
                     ListaConjun.Add(new List<String>());
                     ListaConjun[IndexActual].Add(((char)ConjuntoChar).ToString());
                     ListaConjun[IndexActual].Add((i + 2).ToString());
@@ -65,11 +70,37 @@ namespace Proyecto1
                     ConjuntoChar++;
                 }
             }
+            //llenar tabla de trancisiones
+            int alto = (ConjuntoChar - 64);
+            int ancho = (AuxLetra.Count / 2)+1;
+            Console.WriteLine("alto = "+alto+" ancho = "+ancho);
+            String[,] TablaTransiciones = new String[alto,ancho];
+            for (int i = 0; i < alto; i++)
+            {
+                for (int j = 0; j < ancho; j++)
+                {
+                    if (i == 0)
+                    {
+                        if (j == 0) {
+                            TablaTransiciones[0, 0] = "Inicio";
+                        }
+                        else
+                        {
+                            TablaTransiciones[i, j] = AuxLetra[((j - 1) * 2)].ToString();
+                        } 
+                    }else if (j==0) {
+                        TablaTransiciones[i, j] = ((char)(i + 64)).ToString();
+                    }
+                    else{
+                        TablaTransiciones[i, j] = "--";
+                    }
+                }
+            }
             for (int i = 0; i < AuxLetra.Count; i++)
             {
                 Console.WriteLine(AuxLetra[i]);
             }
-                //imprimir Lista Conjun
+            //imprimir Lista Conjun
             for (int i = 0; i < ListaConjun.Count; i++)
             {
                     for (int j = 0; j < ListaConjun[i].Count; j++)
@@ -79,13 +110,16 @@ namespace Proyecto1
                 Console.WriteLine();
             }
             Ir();
+            for (int i = 0; i < AuxTran.Count; i++)
+            {
+                String[] words = AuxTran[i].ToString().Split(',');
+                //Console.WriteLine(words[0]+"--->"+ words[1] + "--->" + words[2]);
+                TablaTransiciones[Int32.Parse(words[0]),Int32.Parse(words[1])] = words[2];
+            }
             //graficar AFD
             graficarAFD();
-            //Imprimir AFD
-            for (int i = 0; i < AFD.Count; i++)
-            {
-                Console.WriteLine(AFD[i]);
-            }
+            //graficar tabla
+            graficarTabla(alto,ancho,TablaTransiciones);
         }
         public void CargarThompson()
         {
@@ -360,6 +394,10 @@ namespace Proyecto1
                         {
                             int le = Int32.Parse(ListaConjun[i][j].ToString());
                             AFD.Add(ListaConjun[i][0].ToString() + "->" + BuscarL(ListaThom[le-1].ToString()) + "[label=\"" + ListaThom[le - 1].ToString() + "\"];");
+                            int fila=char.Parse(ListaConjun[i][0].ToString())-64;
+                            int columna= char.Parse(BuscarL(ListaThom[le - 1].ToString()))-65;
+                            String RR= BuscarL(ListaThom[le - 1].ToString());
+                            AuxTran.Add(fila.ToString()+","+columna.ToString()+","+RR);
                         }
                     }
                 }
@@ -433,6 +471,34 @@ namespace Proyecto1
                 grafo.Append(AFD[i]);
             }
             grafo.Append("}");
+            generar_dot(rdot, rpng);
+        }
+        public void graficarTabla(int f,int c,String[,]Hello)
+        {
+            grafo = new StringBuilder();
+            String rdot = ruta + "\\Transiciones.dot";
+            String rpng = ruta + "\\Transiciones.png";
+            grafo.Append("digraph G {");
+            grafo.Append("A[color=green shape=record label=\"{");
+            for (int i = 0; i < c; i++)
+            {                
+                for (int j = 0; j < f; j++)
+                {
+                    if (j == 0) {
+                        grafo.Append(Hello[j, i]);
+                    }
+                    else
+                    {
+                        grafo.Append("|" + Hello[j, i]);
+                    }
+                    
+                }
+                if (i !=(c-1))
+                {
+                    grafo.Append("}|{");
+                }
+            }
+            grafo.Append("}\"];}");
             generar_dot(rdot, rpng);
         }
     }
