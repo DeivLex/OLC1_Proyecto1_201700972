@@ -11,11 +11,14 @@ namespace Proyecto1
 
     class Thompson
     {
+        static int Numero_fila;
+        static int Numero_columna;
         static int NumO;
         static int ConjuntoChar;
         String ruta;
         StringBuilder grafo;
         static ArrayList AuxLetra = new ArrayList();
+        ArrayList SalidaEvaluar = new ArrayList();
         ArrayList Aux = new ArrayList();
         static ArrayList AuxTran = new ArrayList();
         static ArrayList AFD = new ArrayList();
@@ -26,9 +29,12 @@ namespace Proyecto1
 
         public void Inicio(String filtro)
         {
+            Numero_fila = 0;
+            Numero_columna = 0;
             NumO = 0;
             ConjuntoChar = 65;
             ruta = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            SalidaEvaluar.Clear();
             AuxTran.Clear();
             AuxLetra.Clear();
             AFD.Clear();
@@ -73,6 +79,8 @@ namespace Proyecto1
             //llenar tabla de trancisiones
             int alto = (ConjuntoChar - 64);
             int ancho = (AuxLetra.Count / 2)+1;
+            Numero_fila = alto;
+            Numero_columna = ancho;
             Console.WriteLine("alto = "+alto+" ancho = "+ancho);
             String[,] TablaTransiciones = new String[alto,ancho];
             for (int i = 0; i < alto; i++)
@@ -120,6 +128,20 @@ namespace Proyecto1
             graficarAFD();
             //graficar tabla
             graficarTabla(alto,ancho,TablaTransiciones);
+            //Salida lexemas
+            for (int i = 0; i < Form1.LexemasEvaluar.Count; i++)
+            {
+                int Val_conjunto = 1;
+                for (int j = 0; j < Form1.LexemasEvaluar[i].ToString().Length; j++)
+                {
+                    Val_conjunto = AceptarLexemas(Val_conjunto,Form1.LexemasEvaluar[i].ToString()[j].ToString(),TablaTransiciones);
+                }
+            }
+            //Imprimir analisis
+            for (int i = 0; i < SalidaEvaluar.Count; i++)
+            {
+                Console.WriteLine(SalidaEvaluar[i]);
+            }
         }
         public void CargarThompson()
         {
@@ -501,5 +523,25 @@ namespace Proyecto1
             grafo.Append("}\"];}");
             generar_dot(rdot, rpng);
         }
+        public int AceptarLexemas(int fila, String valor, String[,] Hello) {
+            bool sig = false;
+            for (int j = 1; j < Numero_columna; j++)
+            {
+                String limpio = Hello[0, j].Replace("'", "");
+                if (limpio.Equals(valor)) {
+                    if (Hello[fila, j]!="--") {
+                        SalidaEvaluar.Add(valor + "Aceptado");
+                        int regreso =char.Parse(Hello[fila, j]) - 64;
+                        sig = true;
+                        return regreso;
+                    }
+                }
+            }
+            if (sig==false) {
+                SalidaEvaluar.Add(valor + "Error");
+            }
+            return fila;
+        }
+
     }
 }

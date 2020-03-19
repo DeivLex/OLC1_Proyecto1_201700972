@@ -29,6 +29,7 @@ namespace Proyecto1
         static int Fmacro = 0;
         ArrayList Conjunto = new ArrayList();
         ArrayList DatCon = new ArrayList();
+        internal static ArrayList LexemasEvaluar = new ArrayList();
         internal static ArrayList ER = new ArrayList();
         internal static ArrayList NameER = new ArrayList();
         public Form1()
@@ -690,6 +691,19 @@ namespace Proyecto1
 
         private void button4_Click(object sender, EventArgs e)
         {
+            LexemasEvaluar.Clear();
+            int ps = 0;
+            for (int i = 0; i < listaLexema.Count; i++)
+            {
+                if (listaLexema[i].Equals(selector.SelectedItem.ToString()))
+                {
+                    if (ps != 0)
+                    {
+                            LexemasEvaluar.Add(listaLexema[i + 2]);
+                    }
+                    ps++;
+                }
+            }
             Thompson v = new Thompson();
             v.Inicio(selector.SelectedItem.ToString());
         }
