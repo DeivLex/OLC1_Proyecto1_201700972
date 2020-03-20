@@ -179,7 +179,6 @@
             this.MostrarConjuntos.Size = new System.Drawing.Size(306, 240);
             this.MostrarConjuntos.TabIndex = 3;
             this.MostrarConjuntos.Text = "";
-            this.MostrarConjuntos.TextChanged += new System.EventHandler(this.MostrarConjuntos_TextChanged);
             // 
             // button1
             // 

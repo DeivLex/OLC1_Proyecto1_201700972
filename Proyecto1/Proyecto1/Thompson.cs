@@ -25,7 +25,7 @@ namespace Proyecto1
         static ArrayList ListaThom = new ArrayList();
         static ArrayList ListaMueve = new ArrayList();
         static List<List<String>> ListaConjun = new List<List<String>>();
-        
+
 
         public void Inicio(String filtro)
         {
@@ -62,9 +62,9 @@ namespace Proyecto1
             ListaConjun[0].Add((1).ToString());
             Cerradura(0);
             ConjuntoChar++;
-            for (int i = 0; i < ListaThom.Count-1; i++)
+            for (int i = 0; i < ListaThom.Count - 1; i++)
             {
-                if (ListaThom[i].ToString()!="ε") {
+                if (ListaThom[i].ToString() != "ε") {
                     int IndexActual = (ConjuntoChar - 65);
                     AuxLetra.Add(ListaThom[i].ToString());
                     AuxLetra.Add(((char)ConjuntoChar).ToString());
@@ -78,11 +78,11 @@ namespace Proyecto1
             }
             //llenar tabla de trancisiones
             int alto = (ConjuntoChar - 64);
-            int ancho = (AuxLetra.Count / 2)+1;
+            int ancho = (AuxLetra.Count / 2) + 1;
             Numero_fila = alto;
             Numero_columna = ancho;
-            Console.WriteLine("alto = "+alto+" ancho = "+ancho);
-            String[,] TablaTransiciones = new String[alto,ancho];
+            Console.WriteLine("alto = " + alto + " ancho = " + ancho);
+            String[,] TablaTransiciones = new String[alto, ancho];
             for (int i = 0; i < alto; i++)
             {
                 for (int j = 0; j < ancho; j++)
@@ -95,11 +95,11 @@ namespace Proyecto1
                         else
                         {
                             TablaTransiciones[i, j] = AuxLetra[((j - 1) * 2)].ToString();
-                        } 
-                    }else if (j==0) {
+                        }
+                    } else if (j == 0) {
                         TablaTransiciones[i, j] = ((char)(i + 64)).ToString();
                     }
-                    else{
+                    else {
                         TablaTransiciones[i, j] = "--";
                     }
                 }
@@ -111,9 +111,9 @@ namespace Proyecto1
             //imprimir Lista Conjun
             for (int i = 0; i < ListaConjun.Count; i++)
             {
-                    for (int j = 0; j < ListaConjun[i].Count; j++)
+                for (int j = 0; j < ListaConjun[i].Count; j++)
                 {
-                    Console.Write(ListaConjun[i][j]+"--->");
+                    Console.Write(ListaConjun[i][j] + "--->");
                 }
                 Console.WriteLine();
             }
@@ -122,19 +122,46 @@ namespace Proyecto1
             {
                 String[] words = AuxTran[i].ToString().Split(',');
                 //Console.WriteLine(words[0]+"--->"+ words[1] + "--->" + words[2]);
-                TablaTransiciones[Int32.Parse(words[0]),Int32.Parse(words[1])] = words[2];
+                TablaTransiciones[Int32.Parse(words[0]), Int32.Parse(words[1])] = words[2];
             }
             //graficar AFD
             graficarAFD();
             //graficar tabla
-            graficarTabla(alto,ancho,TablaTransiciones);
+            graficarTabla(alto, ancho, TablaTransiciones);
             //Salida lexemas
             for (int i = 0; i < Form1.LexemasEvaluar.Count; i++)
             {
+                String AuxEspeciales = "";
                 int Val_conjunto = 1;
+                int row = 1;
+                int column = 1;
                 for (int j = 0; j < Form1.LexemasEvaluar[i].ToString().Length; j++)
                 {
-                    Val_conjunto = AceptarLexemas(Val_conjunto,Form1.LexemasEvaluar[i].ToString()[j].ToString(),TablaTransiciones);
+                    if (Form1.LexemasEvaluar[i].ToString()[j].ToString() == ((char)92).ToString())
+                    {
+                        AuxEspeciales += Form1.LexemasEvaluar[i].ToString()[j].ToString();
+                    }else if (Form1.LexemasEvaluar[i].ToString()[j].ToString() == ((char)34).ToString()|| Form1.LexemasEvaluar[i].ToString()[j].ToString() == ((char)39).ToString())
+                    {
+                        AuxEspeciales += Form1.LexemasEvaluar[i].ToString()[j].ToString();
+                        Val_conjunto = AceptarLexemas(Val_conjunto, AuxEspeciales, TablaTransiciones,row,column);
+                        AuxEspeciales = "";
+                    }
+                    else if(Form1.LexemasEvaluar[i].ToString()[j].ToString() == ((char)9).ToString())
+                    {
+                        row += 3;
+                        Val_conjunto = AceptarLexemas(Val_conjunto, Form1.LexemasEvaluar[i].ToString()[j].ToString(), TablaTransiciones, row, column);
+                    }
+                    else if (Form1.LexemasEvaluar[i].ToString()[j].ToString() == ((char)10).ToString())
+                    {
+                        row = 1;
+                        column++;
+                        Val_conjunto = AceptarLexemas(Val_conjunto, Form1.LexemasEvaluar[i].ToString()[j].ToString(), TablaTransiciones, row, column);
+                    }
+                    else
+                    {
+                        Val_conjunto = AceptarLexemas(Val_conjunto, Form1.LexemasEvaluar[i].ToString()[j].ToString(), TablaTransiciones,row,column);
+                    }
+                    row++;
                 }
             }
             //Imprimir analisis
@@ -174,7 +201,7 @@ namespace Proyecto1
                     {
                         if (ListaThom[j] == null)
                         {
-                            ListaMueve[j] = NumO+"n3";
+                            ListaMueve[j] = NumO + "n3";
                             ListaMueve.Insert(j, "n");
                             ListaMueve.Insert(j, NumO + "n2");
                             ListaMueve.Insert(j, "n");
@@ -233,7 +260,7 @@ namespace Proyecto1
                     {
                         if (ListaThom[j] == null)
                         {
-                            ListaMueve[j] ="n7";
+                            ListaMueve[j] = "n7";
                             ListaMueve.Insert(j, "n");
                             ListaMueve.Insert(j, "n6");
                             ListaThom[j] = "ε";
@@ -320,13 +347,13 @@ namespace Proyecto1
                     }
                     else if (ListaMueve[i].ToString() == "n7")
                     {
-                        ListaMueve[i] = N6+","+(i + 2);
+                        ListaMueve[i] = N6 + "," + (i + 2);
                         N6 = "";
                     }
                     else if (ListaMueve[i].ToString() == "n8")
                     {
                         String auxN = (i + 2).ToString();
-                        for (int j = i; j < ListaMueve.Count ; j++)
+                        for (int j = i; j < ListaMueve.Count; j++)
                         {
                             if (ListaMueve[j].ToString() == "n9")
                             {
@@ -375,15 +402,15 @@ namespace Proyecto1
                 catch { }
             }
         }
-        public void generar_dot(String rdot,String rpng)
+        public void generar_dot(String rdot, String rpng)
         {
-            System.IO.File.WriteAllText(rdot,grafo.ToString());
+            System.IO.File.WriteAllText(rdot, grafo.ToString());
             String sa = Application.StartupPath;
-            String comandoDot = "dot.exe -Tpng "+rdot+" -o "+rpng+" ";
+            String comandoDot = "dot.exe -Tpng " + rdot + " -o " + rpng + " ";
             System.Diagnostics.ProcessStartInfo procStartInfo = new System.Diagnostics.ProcessStartInfo("cmd", "/c " + comandoDot);
             procStartInfo.RedirectStandardOutput = true;
             procStartInfo.UseShellExecute = false;
-            procStartInfo.CreateNoWindow = false;
+            procStartInfo.CreateNoWindow = true;
             System.Diagnostics.Process proc = new System.Diagnostics.Process();
             proc.StartInfo = procStartInfo;
             proc.Start();
@@ -393,17 +420,17 @@ namespace Proyecto1
         public void graficar()
         {
             grafo = new StringBuilder();
-            String rdot = ruta+"\\Thompson.dot";
-            String rpng = ruta+"\\Thompson.png";
+            String rdot = ruta + "\\Thompson.dot";
+            String rpng = ruta + "\\Thompson.png";
             grafo.Append("digraph G {");
             grafo.Append("rankdir=\"LR\";");
             for (int i = 0; i < ListaThom.Count; i++)
             {
-                grafo.Append((i+1)+ "->"+ListaMueve[i]+"[label=\""+ ListaThom[i] + "\"];");
+                grafo.Append((i + 1) + "->" + ListaMueve[i] + "[label=\"" + ListaThom[i] + "\"];");
             }
-            grafo.Append((ListaThom.Count + 1).ToString()+ "[peripheries=2 shape=circle];");
+            grafo.Append((ListaThom.Count + 1).ToString() + "[peripheries=2 shape=circle];");
             grafo.Append("}");
-            generar_dot(rdot,rpng);
+            generar_dot(rdot, rpng);
         }
         static void Ir() {
             for (int i = 0; i < ListaConjun.Count; i++)
@@ -411,15 +438,15 @@ namespace Proyecto1
                 for (int j = 1; j < ListaConjun[i].Count; j++)
                 {
                     int hola = Int32.Parse(ListaConjun[i][j].ToString());
-                    if (ListaThom[hola - 1]!=null) {
+                    if (ListaThom[hola - 1] != null) {
                         if (ListaThom[hola - 1].ToString() != "ε")
                         {
                             int le = Int32.Parse(ListaConjun[i][j].ToString());
-                            AFD.Add(ListaConjun[i][0].ToString() + "->" + BuscarL(ListaThom[le-1].ToString()) + "[label=\"" + ListaThom[le - 1].ToString() + "\"];");
-                            int fila=char.Parse(ListaConjun[i][0].ToString())-64;
-                            int columna= char.Parse(BuscarL(ListaThom[le - 1].ToString()))-65;
-                            String RR= BuscarL(ListaThom[le - 1].ToString());
-                            AuxTran.Add(fila.ToString()+","+columna.ToString()+","+RR);
+                            AFD.Add(ListaConjun[i][0].ToString() + "->" + BuscarL(ListaThom[le - 1].ToString()) + "[label=\"" + ListaThom[le - 1].ToString() + "\"];");
+                            int fila = char.Parse(ListaConjun[i][0].ToString()) - 64;
+                            int columna = char.Parse(BuscarL(ListaThom[le - 1].ToString())) - 65;
+                            String RR = BuscarL(ListaThom[le - 1].ToString());
+                            AuxTran.Add(fila.ToString() + "," + columna.ToString() + "," + RR);
                         }
                     }
                 }
@@ -440,7 +467,7 @@ namespace Proyecto1
             int IndexActual = (ConjuntoChar - 65);
             if (ListaThom[var] == null)
             {
-                AFD.Add((char)ConjuntoChar+ "[peripheries=2 shape=circle];");
+                AFD.Add((char)ConjuntoChar + "[peripheries=2 shape=circle];");
                 return;
             }
             else if (ListaThom[var].ToString() == "ε")
@@ -451,7 +478,7 @@ namespace Proyecto1
                     Console.WriteLine("SI TIENE EPSILON CASO 1: " + var);
                     string[] words = ListaMueve[var].ToString().Split(',');
                     addPivote(IndexActual, Int32.Parse(words[0].ToString()));
-                    Console.WriteLine("Si agrego: "+ Int32.Parse(words[0].ToString())+" = "+ (char)ConjuntoChar);
+                    Console.WriteLine("Si agrego: " + Int32.Parse(words[0].ToString()) + " = " + (char)ConjuntoChar);
                     int auxb = Int32.Parse(words[0].ToString());
                     Cerradura(auxb - 1);
                     addPivote(IndexActual, Int32.Parse(words[1].ToString()));
@@ -462,20 +489,20 @@ namespace Proyecto1
                 else
                 {
                     Console.WriteLine("SI TIENE EPSILON CASO 2: " + var);
-                    addPivote(IndexActual,Int32.Parse(ListaMueve[var].ToString()));
+                    addPivote(IndexActual, Int32.Parse(ListaMueve[var].ToString()));
                     Cerradura(Int32.Parse(ListaMueve[var].ToString()) - 1);
                 }
             }
         }
-        static void addPivote(int IndexActual,int var) {
+        static void addPivote(int IndexActual, int var) {
             bool existe = false;
             for (int k = 1; k < ListaConjun[IndexActual].Count; k++)
             {
-                if(ListaConjun[IndexActual][k].Equals((var).ToString())){
+                if (ListaConjun[IndexActual][k].Equals((var).ToString())) {
                     existe = true;
                 }
             }
-            if (existe==false)
+            if (existe == false)
             {
                 Console.WriteLine("ADD = " + var);
                 ListaConjun[IndexActual].Add((var).ToString());
@@ -495,7 +522,7 @@ namespace Proyecto1
             grafo.Append("}");
             generar_dot(rdot, rpng);
         }
-        public void graficarTabla(int f,int c,String[,]Hello)
+        public void graficarTabla(int f, int c, String[,] Hello)
         {
             grafo = new StringBuilder();
             String rdot = ruta + "\\Transiciones.dot";
@@ -503,7 +530,7 @@ namespace Proyecto1
             grafo.Append("digraph G {");
             grafo.Append("A[color=green shape=record label=\"{");
             for (int i = 0; i < c; i++)
-            {                
+            {
                 for (int j = 0; j < f; j++)
                 {
                     if (j == 0) {
@@ -513,9 +540,9 @@ namespace Proyecto1
                     {
                         grafo.Append("|" + Hello[j, i]);
                     }
-                    
+
                 }
-                if (i !=(c-1))
+                if (i != (c - 1))
                 {
                     grafo.Append("}|{");
                 }
@@ -523,24 +550,88 @@ namespace Proyecto1
             grafo.Append("}\"];}");
             generar_dot(rdot, rpng);
         }
-        public int AceptarLexemas(int fila, String valor, String[,] Hello) {
+        public int AceptarLexemas(int fila, String valor, String[,] Hello,int row,int column) {
             bool sig = false;
             for (int j = 1; j < Numero_columna; j++)
             {
-                String limpio = Hello[0, j].Replace("'", "");
-                if (limpio.Equals(valor)) {
-                    if (Hello[fila, j]!="--") {
-                        SalidaEvaluar.Add(valor + "Aceptado");
-                        int regreso =char.Parse(Hello[fila, j]) - 64;
-                        sig = true;
-                        return regreso;
+                if (Hello[0, j][0].ToString()=="'") {
+                    String limpio = Hello[0, j].Replace("'", "");
+                    if(limpio.Equals(((char)92).ToString()))
+                    {
+                        limpio = ((char)92).ToString() + ((char)39).ToString();
+                    }
+                    else if (limpio.ToString().Equals(((char)92).ToString() + "n"))
+                    {
+                        limpio = ((char)10).ToString();
+                    }
+                    else if (limpio.ToString().Equals(((char)92).ToString() + "t"))
+                    {
+                        limpio = ((char)9).ToString();
+                    }
+                    if (limpio.Equals(valor)) {
+                        if (Hello[fila, j] != "--") {
+                            if (valor == ((char)9).ToString())
+                            {
+                                valor = "Tab";
+                            }
+                            else if (valor == ((char)10).ToString())
+                            {
+                                valor = "salto de linea";
+                            }
+                            SalidaEvaluar.Add(valor + ",Aceptado," + row + "," + column);
+                            int regreso = char.Parse(Hello[fila, j]) - 64;
+                            sig = true;
+                            return regreso;
+                        }
+                    }
+                } else {
+                    if (EstaEnConjunto(valor, Hello[0, j]) ==true) {
+                        if (Hello[fila, j] != "--")
+                        {
+                            if (valor == ((char)9).ToString())
+                            {
+                                valor = "Tab";
+                            }
+                            else if (valor == ((char)10).ToString())
+                            {
+                                column++;
+                                valor = "salto de linea";
+                            }
+                            SalidaEvaluar.Add(valor + ",Aceptado," + row + "," + column);
+                            int regreso = char.Parse(Hello[fila, j]) - 64;
+                            sig = true;
+                            return regreso;
+                        }
                     }
                 }
             }
-            if (sig==false) {
-                SalidaEvaluar.Add(valor + "Error");
+            if (sig == false) {
+                if (valor == ((char)9).ToString())
+                {
+                    valor = "Tab";
+                }
+                else if (valor == ((char)10).ToString())
+                {
+                    column++;
+                    valor = "salto de linea";
+                }
+                SalidaEvaluar.Add(valor + ",Error,"+row+","+column);
+                return fila;
             }
             return fila;
+        }
+        public bool EstaEnConjunto (String valor,String ConjuntoBuscar){
+            bool esta = false;
+            for (int i = 0; i < Form1.Conjunto.Count; i++)
+            {
+                if (Form1.Conjunto[i].ToString()==ConjuntoBuscar) {
+                    if (Form1.DatCon[i].ToString()==valor) {
+                        esta = true;
+                        return esta;
+                    }
+                }
+            }
+            return esta;
         }
 
     }

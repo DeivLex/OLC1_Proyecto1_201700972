@@ -27,8 +27,8 @@ namespace Proyecto1
         private String auxEr = "";
         static int Imacro = 0;
         static int Fmacro = 0;
-        ArrayList Conjunto = new ArrayList();
-        ArrayList DatCon = new ArrayList();
+        internal static ArrayList Conjunto = new ArrayList();
+        internal static ArrayList DatCon = new ArrayList();
         internal static ArrayList LexemasEvaluar = new ArrayList();
         internal static ArrayList ER = new ArrayList();
         internal static ArrayList NameER = new ArrayList();
@@ -209,6 +209,12 @@ namespace Proyecto1
                                 estado = 0;
                                 i = i - 1;
                             }
+                            else if (c == '[')
+                            {
+                                auxLex += c;
+                                AddList(auxLex, "corchete izq");
+                                estado = 16;
+                            }
                             else if (c == '.')
                             {
                                 auxLex += c;
@@ -243,6 +249,11 @@ namespace Proyecto1
                                 NameER.Add(ErActual);
                                 ER.Add("+");
                                 estado = 5;
+                            }
+                            else if (c ==(char)92)
+                            {
+                                auxLex += c;
+                                estado = 6;
                             }
                             else if (c == '{')
                             {
@@ -294,6 +305,21 @@ namespace Proyecto1
                             }
                             else if (esEspacio(c))
                             {
+                                estado = 6;
+                            }
+                            else if (c == (char)34 || c == (char)39)
+                            {
+                                auxLex += c;
+                                estado = 6;
+                            }
+                            else if (c == 'n')
+                            {
+                                auxLex = "\n";
+                                estado = 6;
+                            }
+                            else if (c == 't')
+                            {
+                                auxLex = "\t";
                                 estado = 6;
                             }
                             else
@@ -419,7 +445,12 @@ namespace Proyecto1
                                 auxEr = "";
                                 auxLex += c;
                                 estado = 5;
-                                
+
+                            } else if (c == (char)92)
+                            {
+                                auxEr += c;
+                                auxLex += c;
+                                estado = 20;
                             }
                             else
                             {
@@ -479,11 +510,87 @@ namespace Proyecto1
                                 AddList(auxLex, "Lexema a evaluar");
                                 estado = 0;
                             }
+                            else if (c == (char)92)
+                            {
+                                auxLex += c;
+                                estado = 19;
+                            }
                             else
                             {
                                 auxLex += c;
                                 estado = 15;
                             }
+                            break;
+                        }
+                    case 16:
+                        {
+                            if (c == ':')
+                            {
+                                auxLex += c;
+                                AddList(auxLex, "dos puntos");
+                                estado = 17;
+                            }
+                            else {
+                                auxLex += c;
+                                AddList(auxLex, "error");
+                                estado = 0;
+                            }
+                            break;
+                        }
+                    case 17:
+                        {
+                            if (c == '\n')
+                            {
+                                auxLex += c;
+                                AddList(auxLex, "error");
+                                estado = 0;
+                            }
+                            else if(c == ':')
+                            {
+                                auxLex += c;
+                                AddList(auxLex, "dos puntos");
+                                estado = 18;
+                            }
+                            else
+                            {
+                                auxLex += c;
+                                Conjunto.Add(ConActual);
+                                DatCon.Add(auxLex);
+                                AddList(auxLex, "simbolo conjunto");
+                                estado = 17;
+                            }
+                            break;
+                        }
+                    case 18:
+                        {
+                            if (c == ']')
+                            {
+                                auxLex += c;
+                                AddList(auxLex, "corchete der");
+                                estado = 0;
+                            }
+                            else {
+                                auxLex += c;
+                                AddList(auxLex, "error");
+                                estado = 0;
+                            }
+                            break;
+                        }
+                    case 19:
+                        {
+                            auxLex += c;
+                            estado = 15;
+                            break;
+                        }
+                    case 20:
+                        {
+                            auxEr += c;
+                            auxLex += c;
+                            estado = 12;
+                            break;
+                        }
+                    case 21:
+                        {
                             break;
                         }
                     case 0:
@@ -678,17 +785,10 @@ namespace Proyecto1
             ayudaCon.Clear();
         }
     }
-
         private void button2_Click(object sender, EventArgs e)
         {
             ReporteHTML();
         }
-
-        private void MostrarConjuntos_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void button4_Click(object sender, EventArgs e)
         {
             LexemasEvaluar.Clear();
