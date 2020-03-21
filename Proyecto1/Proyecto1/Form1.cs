@@ -27,6 +27,7 @@ namespace Proyecto1
         private String auxEr = "";
         static int Imacro = 0;
         static int Fmacro = 0;
+        internal static ArrayList MostrarConsola = new ArrayList();
         internal static ArrayList Conjunto = new ArrayList();
         internal static ArrayList DatCon = new ArrayList();
         internal static ArrayList LexemasEvaluar = new ArrayList();
@@ -669,6 +670,34 @@ namespace Proyecto1
         {
             return c == '\n' || c == '\t' || c == ' ';
         }
+        private void ReporteConsola() {
+            string dir = @"Reporte_Consola_201700972.html";
+            if (!File.Exists(dir))
+            {
+                // Create a file to write to.
+                using (StreamWriter sw = File.CreateText(dir))
+                {
+                    sw.WriteLine("");
+                    sw.WriteLine("<!DOCTYPE HTML5>");
+                    sw.WriteLine("<html>");
+                    sw.WriteLine("<head>");
+                    sw.WriteLine("<title>Reporte_HTML_201700972</title>");
+                    sw.WriteLine("</head>");
+                    sw.WriteLine("<body>");
+                    sw.WriteLine("<table border=\"1\">");
+                    sw.WriteLine("<caption>Salida Consola</caption>");
+                    for (int i = 0; i < MostrarConsola.Count; i++)
+                    {
+                        sw.WriteLine("<tr>");
+                        sw.WriteLine("<th>" + MostrarConsola[i] + "</th>");
+                        sw.WriteLine("</tr>");
+                    }
+                    sw.WriteLine("</table>");
+                    sw.WriteLine("</body>");
+                    sw.WriteLine("</html>");
+                }
+            }
+        }
         private void ReporteHTML() {
             string dir = @"Reporte_HTML_201700972.html";
             if (!File.Exists(dir))
@@ -787,25 +816,72 @@ namespace Proyecto1
     }
         private void button2_Click(object sender, EventArgs e)
         {
-            ReporteHTML();
+            try
+            {
+                ReporteHTML();
+            }
+            catch
+            {
+                MessageBox.Show("De momento no se puede generar el reporte HTML. ", "Error");
+            }
         }
         private void button4_Click(object sender, EventArgs e)
         {
             LexemasEvaluar.Clear();
-            int ps = 0;
-            for (int i = 0; i < listaLexema.Count; i++)
+            try
             {
-                if (listaLexema[i].Equals(selector.SelectedItem.ToString()))
+                int ps = 0;
+                for (int i = 0; i < listaLexema.Count; i++)
                 {
-                    if (ps != 0)
+                    if (listaLexema[i].Equals(selector.SelectedItem.ToString()))
                     {
+                        if (ps != 0)
+                        {
                             LexemasEvaluar.Add(listaLexema[i + 2]);
+                        }
+                        ps++;
                     }
-                    ps++;
                 }
+                Thompson v = new Thompson();
+                v.Inicio(selector.SelectedItem.ToString());
+                String AuxMostrar = "";
+                int j = 0;
+                for (int i = 0; i < Thompson.SalidaEvaluar.Count; i++)
+                {
+                    string[] words = Thompson.SalidaEvaluar[i].ToString().Split(',');
+                    if (words[0].Equals("FIN")) {
+                        MostrarConsola.Add("La expresion \""+LexemasEvaluar[j]+"\" es "+ words[1] +" para la expresion regular "+ selector.SelectedItem.ToString());
+                        AuxMostrar += "La expresion \"" + LexemasEvaluar[j] + "\" es " + words[1] + " para la expresion regular " + selector.SelectedItem.ToString() + "\n";
+                        j++;
+                    }
+                }
+                Consola.Text =AuxMostrar;
             }
-            Thompson v = new Thompson();
-            v.Inicio(selector.SelectedItem.ToString());
+            catch
+            {
+                MessageBox.Show("No se ha seleccionado ninguna expresion regular. ", "Error");
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            try {
+                Thompson.ReporteXML();
+            } catch {
+                MessageBox.Show("De momento no se puede generar el reporte XML. ", "Error");
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ReporteConsola();
+            }
+            catch
+            {
+                MessageBox.Show("De momento no se puede generar el reporte Consola.", "Error");
+            }
         }
     }
 }

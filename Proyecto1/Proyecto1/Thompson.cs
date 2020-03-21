@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace Proyecto1
 
     class Thompson
     {
+        static bool Estado_Espresion = true;
         static int Numero_fila;
         static int Numero_columna;
         static int NumO;
@@ -18,7 +20,7 @@ namespace Proyecto1
         String ruta;
         StringBuilder grafo;
         static ArrayList AuxLetra = new ArrayList();
-        ArrayList SalidaEvaluar = new ArrayList();
+        internal static ArrayList SalidaEvaluar = new ArrayList();
         ArrayList Aux = new ArrayList();
         static ArrayList AuxTran = new ArrayList();
         static ArrayList AFD = new ArrayList();
@@ -131,12 +133,15 @@ namespace Proyecto1
             //Salida lexemas
             for (int i = 0; i < Form1.LexemasEvaluar.Count; i++)
             {
+                SalidaEvaluar.Add("INICIO,------,Expresion = " + filtro + ",Numero = " + (i+1));
                 String AuxEspeciales = "";
                 int Val_conjunto = 1;
                 int row = 1;
                 int column = 1;
+                Estado_Espresion = true;
                 for (int j = 0; j < Form1.LexemasEvaluar[i].ToString().Length; j++)
                 {
+                    
                     if (Form1.LexemasEvaluar[i].ToString()[j].ToString() == ((char)92).ToString())
                     {
                         AuxEspeciales += Form1.LexemasEvaluar[i].ToString()[j].ToString();
@@ -163,6 +168,13 @@ namespace Proyecto1
                     }
                     row++;
                 }
+                if (Estado_Espresion==false) {
+                    SalidaEvaluar.Add("FIN,Invalida,Expresion = " + filtro + ",Numero = " + (i + 1));
+                }
+                else {
+                    SalidaEvaluar.Add("FIN,Valida,Expresion = " + filtro + ",Numero = " + (i + 1));
+                }
+                
             }
             //Imprimir analisis
             for (int i = 0; i < SalidaEvaluar.Count; i++)
@@ -615,6 +627,7 @@ namespace Proyecto1
                     column++;
                     valor = "salto de linea";
                 }
+                Estado_Espresion = false;
                 SalidaEvaluar.Add(valor + ",Error,"+row+","+column);
                 return fila;
             }
@@ -633,6 +646,27 @@ namespace Proyecto1
             }
             return esta;
         }
-
+        internal static void ReporteXML() {
+            string dir = @"Reporte_XML_201700972.xml";
+            if (!File.Exists(dir))
+            {
+                // Create a file to write to.
+                using (StreamWriter sw = File.CreateText(dir))
+                {
+                    sw.WriteLine("<ListaTokens>");
+                    for (int i = 0; i < SalidaEvaluar.Count; i++)
+                    {
+                        string[] words = SalidaEvaluar[i].ToString().Split(',');
+                        sw.WriteLine("<Token>");
+                        sw.WriteLine("<Nombre>"+words[0]+"</Nombre>");
+                        sw.WriteLine("<Estado>"+ words[1] + "</Estado>");
+                        sw.WriteLine("<Fila>"+ words[2] + "</Fila>");
+                        sw.WriteLine("<Columna>"+ words[3] + "</Columna>");
+                        sw.WriteLine("</Token>");
+                    }
+                    sw.WriteLine("</ListaTokens>");
+                }
+            }
+        }
     }
 }
