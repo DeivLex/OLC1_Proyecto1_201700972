@@ -72,7 +72,8 @@ namespace Proyecto1
             {
                 richTextBox2.Text = fileContent;
             }
-            else {
+            else
+            {
                 richTextBox3.Text = fileContent;
             }
             //MessageBox.Show(fileContent, "File Content at path: " + filePath, MessageBoxButtons.OK);
@@ -93,15 +94,16 @@ namespace Proyecto1
             {
                 File.WriteAllText(filePath, richTextBox3.Text);
             }
-            MessageBox.Show("Archivo Guardado","Mensaje");
-            
+            MessageBox.Show("Archivo Guardado", "Mensaje");
+
         }
 
         private void salirToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
         }
-        private void iniciarProceso() {
+        private void iniciarProceso()
+        {
             for (int i = 0; i < fuente.Length; i++)
             {
                 c = fuente[i];
@@ -140,7 +142,9 @@ namespace Proyecto1
                             {
                                 auxLex += c;
                                 estado = 3;
-                            } else if (c == (char)34) {
+                            }
+                            else if (c == (char)34)
+                            {
                                 auxEr = Char.ToString((char)39);
                                 estado = 15;
                             }
@@ -251,7 +255,7 @@ namespace Proyecto1
                                 ER.Add("+");
                                 estado = 5;
                             }
-                            else if (c ==(char)92)
+                            else if (c == (char)92)
                             {
                                 auxLex += c;
                                 estado = 6;
@@ -308,9 +312,14 @@ namespace Proyecto1
                             {
                                 estado = 6;
                             }
-                            else if (c == (char)34 || c == (char)39)
+                            else if (c == (char)34)
                             {
                                 auxLex += c;
+                                estado = 6;
+                            }
+                            else if (c == (char)39)
+                            {
+                                auxLex = "'";
                                 estado = 6;
                             }
                             else if (c == 'n')
@@ -409,7 +418,8 @@ namespace Proyecto1
                             {
                                 auxLex += c;
                                 estado = 11;
-                            }else if (c=='\n')
+                            }
+                            else if (c == '\n')
                             {
                                 estado = 10;
                             }
@@ -442,12 +452,20 @@ namespace Proyecto1
                             {
                                 auxEr += Char.ToString((char)39);
                                 NameER.Add(ErActual);
-                                ER.Add(auxEr);
+                                if (ExisteER(ErActual, auxEr) == true)
+                                {
+                                    ER.Add((char)169 + auxEr);
+                                }
+                                else
+                                {
+                                    ER.Add(auxEr);
+                                }
                                 auxEr = "";
                                 auxLex += c;
                                 estado = 5;
 
-                            } else if (c == (char)92)
+                            }
+                            else if (c == (char)92)
                             {
                                 auxEr += c;
                                 auxLex += c;
@@ -472,7 +490,7 @@ namespace Proyecto1
                             {
                                 estado = 13;
                             }
-                            else if (auxLex.Equals("%%%%",StringComparison.OrdinalIgnoreCase))
+                            else if (auxLex.Equals("%%%%", StringComparison.OrdinalIgnoreCase))
                             {
                                 AddList(auxLex, "Division entre partes");
                                 estado = 0;
@@ -491,7 +509,12 @@ namespace Proyecto1
                             if (c == '}')
                             {
                                 NameER.Add(ErActual);
-                                ER.Add(auxEr);
+                                if (ExisteER(ErActual,auxEr) ==true) {
+                                    ER.Add((char)169+auxEr);
+                                }
+                                else {
+                                    ER.Add(auxEr);
+                                }
                                 auxEr = "";
                                 auxLex += c;
                                 estado = 5;
@@ -531,7 +554,8 @@ namespace Proyecto1
                                 AddList(auxLex, "dos puntos");
                                 estado = 17;
                             }
-                            else {
+                            else
+                            {
                                 auxLex += c;
                                 AddList(auxLex, "error");
                                 estado = 0;
@@ -546,7 +570,7 @@ namespace Proyecto1
                                 AddList(auxLex, "error");
                                 estado = 0;
                             }
-                            else if(c == ':')
+                            else if (c == ':')
                             {
                                 auxLex += c;
                                 AddList(auxLex, "dos puntos");
@@ -570,7 +594,8 @@ namespace Proyecto1
                                 AddList(auxLex, "corchete der");
                                 estado = 0;
                             }
-                            else {
+                            else
+                            {
                                 auxLex += c;
                                 AddList(auxLex, "error");
                                 estado = 0;
@@ -605,7 +630,7 @@ namespace Proyecto1
                             {
                                 auxLex += c;
                                 AddList(auxLex, "dos puntos");
-                                estado = 2; 
+                                estado = 2;
                             }
                             else if (c == ';')
                             {
@@ -670,7 +695,8 @@ namespace Proyecto1
         {
             return c == '\n' || c == '\t' || c == ' ';
         }
-        private void ReporteConsola() {
+        private void ReporteConsola()
+        {
             string dir = @"Reporte_Consola_201700972.html";
             if (!File.Exists(dir))
             {
@@ -698,7 +724,8 @@ namespace Proyecto1
                 }
             }
         }
-        private void ReporteHTML() {
+        private void ReporteHTML()
+        {
             string dir = @"Reporte_HTML_201700972.html";
             if (!File.Exists(dir))
             {
@@ -721,8 +748,8 @@ namespace Proyecto1
                     for (int i = 0; i < listaLexema.Count; i++)
                     {
                         sw.WriteLine("<tr>");
-                        sw.WriteLine("<th>"+ listaToken[i] + "</th>");
-                        sw.WriteLine("<th>"+ listaLexema[i] + "</th>");
+                        sw.WriteLine("<th>" + listaToken[i] + "</th>");
+                        sw.WriteLine("<th>" + listaLexema[i] + "</th>");
                         sw.WriteLine("</tr>");
                     }
                     sw.WriteLine("</table>");
@@ -766,7 +793,7 @@ namespace Proyecto1
             //inicio
             if (fuente.Length == 0)
             {
-               MessageBox.Show("El cuadro de entrada no contiene caracteres a evaluar. ","vacio");
+                MessageBox.Show("El cuadro de entrada no contiene caracteres a evaluar. ", "vacio");
 
             }
             else
@@ -776,7 +803,7 @@ namespace Proyecto1
                 {
                     if (i == 0)
                     {
-                        
+
                         selector.Items.Add(NameER[0]);
                     }
                     else if (!NameER[i].Equals(NameER[i - 1]))
@@ -786,34 +813,34 @@ namespace Proyecto1
                 }
                 //Mostrar conjuntos
                 ArrayList ayudaCon = new ArrayList();
-            for (int i = 0; i < Conjunto.Count; i++)
-            {
-                if (i == 0)
+                for (int i = 0; i < Conjunto.Count; i++)
                 {
-                    ayudaCon.Add(Conjunto[0]);
-                }
-                else if (!Conjunto[i].Equals(Conjunto[i - 1]))
-                {
-                    ayudaCon.Add(Conjunto[i]);
-                }
-            }
-            String auxiliarCon = "";
-            for (int i = 0; i < ayudaCon.Count; i++)
-            {
-                String auxCon = "";
-                for (int j = 0; j < Conjunto.Count; j++)
-                {
-                    if (Conjunto[j].Equals(ayudaCon[i]))
+                    if (i == 0)
                     {
-                        auxCon += DatCon[j] + ", ";
+                        ayudaCon.Add(Conjunto[0]);
+                    }
+                    else if (!Conjunto[i].Equals(Conjunto[i - 1]))
+                    {
+                        ayudaCon.Add(Conjunto[i]);
                     }
                 }
-                auxiliarCon += ayudaCon[i] + "----->" + auxCon + "\n";
+                String auxiliarCon = "";
+                for (int i = 0; i < ayudaCon.Count; i++)
+                {
+                    String auxCon = "";
+                    for (int j = 0; j < Conjunto.Count; j++)
+                    {
+                        if (Conjunto[j].Equals(ayudaCon[i]))
+                        {
+                            auxCon += DatCon[j] + ", ";
+                        }
+                    }
+                    auxiliarCon += ayudaCon[i] + "----->" + auxCon + "\n";
+                }
+                MostrarConjuntos.Text = auxiliarCon;
+                ayudaCon.Clear();
             }
-            MostrarConjuntos.Text=auxiliarCon;
-            ayudaCon.Clear();
         }
-    }
         private void button2_Click(object sender, EventArgs e)
         {
             try
@@ -849,29 +876,31 @@ namespace Proyecto1
                 for (int i = 0; i < Thompson.SalidaEvaluar.Count; i++)
                 {
                     string[] words = Thompson.SalidaEvaluar[i].ToString().Split(',');
-                    if (words[0].Equals("FIN")) {
-                        MostrarConsola.Add("La expresion \""+LexemasEvaluar[j]+"\" es "+ words[1] +" para la expresion regular "+ selector.SelectedItem.ToString());
+                    if (words[0].Equals("FIN"))
+                    {
+                        MostrarConsola.Add("La expresion \"" + LexemasEvaluar[j] + "\" es " + words[1] + " para la expresion regular " + selector.SelectedItem.ToString());
                         AuxMostrar += "La expresion \"" + LexemasEvaluar[j] + "\" es " + words[1] + " para la expresion regular " + selector.SelectedItem.ToString() + "\n";
                         j++;
                     }
                 }
-                Consola.Text =AuxMostrar;
+                Consola.Text = AuxMostrar;
             }
             catch
             {
                 MessageBox.Show("No se ha seleccionado ninguna expresion regular. ", "Error");
             }
         }
-
         private void button3_Click(object sender, EventArgs e)
         {
-            try {
+            try
+            {
                 Thompson.ReporteXML();
-            } catch {
+            }
+            catch
+            {
                 MessageBox.Show("De momento no se puede generar el reporte XML. ", "Error");
             }
         }
-
         private void button5_Click(object sender, EventArgs e)
         {
             try
@@ -882,6 +911,19 @@ namespace Proyecto1
             {
                 MessageBox.Show("De momento no se puede generar el reporte Consola.", "Error");
             }
+        }
+        public bool ExisteER(String ex, String va)
+        {
+            bool a = false;
+            for (int i = 0; i < ER.Count; i++)
+            {
+                if (ER[i].Equals(va)&&NameER[i].Equals(ex))
+                {
+                    a = true;
+                    return a;
+                }
+            }
+            return a;
         }
     }
 }

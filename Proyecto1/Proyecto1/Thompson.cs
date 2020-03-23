@@ -12,6 +12,7 @@ namespace Proyecto1
 
     class Thompson
     {
+
         static bool Estado_Espresion = true;
         static int Numero_fila;
         static int Numero_columna;
@@ -27,15 +28,17 @@ namespace Proyecto1
         static ArrayList ListaThom = new ArrayList();
         static ArrayList ListaMueve = new ArrayList();
         static List<List<String>> ListaConjun = new List<List<String>>();
+        static ArrayList NumerosAceptacion = new ArrayList();
 
 
         public void Inicio(String filtro)
-        {
+        {            
             Numero_fila = 0;
             Numero_columna = 0;
             NumO = 0;
             ConjuntoChar = 65;
             ruta = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            NumerosAceptacion.Clear();
             SalidaEvaluar.Clear();
             AuxTran.Clear();
             AuxLetra.Clear();
@@ -83,7 +86,6 @@ namespace Proyecto1
             int ancho = (AuxLetra.Count / 2) + 1;
             Numero_fila = alto;
             Numero_columna = ancho;
-            Console.WriteLine("alto = " + alto + " ancho = " + ancho);
             String[,] TablaTransiciones = new String[alto, ancho];
             for (int i = 0; i < alto; i++)
             {
@@ -123,17 +125,19 @@ namespace Proyecto1
             for (int i = 0; i < AuxTran.Count; i++)
             {
                 String[] words = AuxTran[i].ToString().Split(',');
-                //Console.WriteLine(words[0]+"--->"+ words[1] + "--->" + words[2]);
                 TablaTransiciones[Int32.Parse(words[0]), Int32.Parse(words[1])] = words[2];
             }
             //graficar AFD
             graficarAFD();
+            //Transformar tabla tranciciones
+            Transformar(TablaTransiciones);
+            TransformarEspacios(TablaTransiciones);
             //graficar tabla
-            graficarTabla(alto, ancho, TablaTransiciones);
+            graficarTabla(Numero_fila, Numero_columna, TablaTransiciones);
             //Salida lexemas
             for (int i = 0; i < Form1.LexemasEvaluar.Count; i++)
             {
-                SalidaEvaluar.Add("INICIO,------,Expresion = " + filtro + ",Numero = " + (i+1));
+                SalidaEvaluar.Add("INICIO,------,Expresion = " + filtro + ",Numero = " + (i + 1));
                 String AuxEspeciales = "";
                 int Val_conjunto = 1;
                 int row = 1;
@@ -141,17 +145,17 @@ namespace Proyecto1
                 Estado_Espresion = true;
                 for (int j = 0; j < Form1.LexemasEvaluar[i].ToString().Length; j++)
                 {
-                    
+
                     if (Form1.LexemasEvaluar[i].ToString()[j].ToString() == ((char)92).ToString())
                     {
                         AuxEspeciales += Form1.LexemasEvaluar[i].ToString()[j].ToString();
-                    }else if (Form1.LexemasEvaluar[i].ToString()[j].ToString() == ((char)34).ToString()|| Form1.LexemasEvaluar[i].ToString()[j].ToString() == ((char)39).ToString())
+                    } else if (Form1.LexemasEvaluar[i].ToString()[j].ToString() == ((char)34).ToString() || Form1.LexemasEvaluar[i].ToString()[j].ToString() == ((char)39).ToString())
                     {
                         AuxEspeciales += Form1.LexemasEvaluar[i].ToString()[j].ToString();
-                        Val_conjunto = AceptarLexemas(Val_conjunto, AuxEspeciales, TablaTransiciones,row,column);
+                        Val_conjunto = AceptarLexemas(Val_conjunto, AuxEspeciales, TablaTransiciones, row, column);
                         AuxEspeciales = "";
                     }
-                    else if(Form1.LexemasEvaluar[i].ToString()[j].ToString() == ((char)9).ToString())
+                    else if (Form1.LexemasEvaluar[i].ToString()[j].ToString() == ((char)9).ToString())
                     {
                         row += 3;
                         Val_conjunto = AceptarLexemas(Val_conjunto, Form1.LexemasEvaluar[i].ToString()[j].ToString(), TablaTransiciones, row, column);
@@ -164,22 +168,18 @@ namespace Proyecto1
                     }
                     else
                     {
-                        Val_conjunto = AceptarLexemas(Val_conjunto, Form1.LexemasEvaluar[i].ToString()[j].ToString(), TablaTransiciones,row,column);
+                        Val_conjunto = AceptarLexemas(Val_conjunto, Form1.LexemasEvaluar[i].ToString()[j].ToString(), TablaTransiciones, row, column);
                     }
                     row++;
                 }
-                if (Estado_Espresion==false) {
+                Estado_Espresion = UltimoAcepta(Val_conjunto);
+                if (Estado_Espresion == false) {
                     SalidaEvaluar.Add("FIN,Invalida,Expresion = " + filtro + ",Numero = " + (i + 1));
                 }
                 else {
                     SalidaEvaluar.Add("FIN,Valida,Expresion = " + filtro + ",Numero = " + (i + 1));
                 }
-                
-            }
-            //Imprimir analisis
-            for (int i = 0; i < SalidaEvaluar.Count; i++)
-            {
-                Console.WriteLine(SalidaEvaluar[i]);
+
             }
         }
         public void CargarThompson()
@@ -454,10 +454,11 @@ namespace Proyecto1
                         if (ListaThom[hola - 1].ToString() != "ε")
                         {
                             int le = Int32.Parse(ListaConjun[i][j].ToString());
-                            AFD.Add(ListaConjun[i][0].ToString() + "->" + BuscarL(ListaThom[le - 1].ToString()) + "[label=\"" + ListaThom[le - 1].ToString() + "\"];");
-                            int fila = char.Parse(ListaConjun[i][0].ToString()) - 64;
-                            int columna = char.Parse(BuscarL(ListaThom[le - 1].ToString())) - 65;
                             String RR = BuscarL(ListaThom[le - 1].ToString());
+                            AFD.Add(ListaConjun[i][0].ToString() + "->" + RR + "[label=\"" + ListaThom[le - 1].ToString() + "\"];");
+                            int fila = char.Parse(ListaConjun[i][0].ToString()) - 64;
+                            int columna = char.Parse(RR.ToString()) - 65;
+
                             AuxTran.Add(fila.ToString() + "," + columna.ToString() + "," + RR);
                         }
                     }
@@ -469,7 +470,8 @@ namespace Proyecto1
             {
                 if (AuxLetra[i].ToString().Equals(letra))
                 {
-                    return AuxLetra[i + 1].ToString();
+                    int j = i + 1;
+                    return AuxLetra[j].ToString();
                 }
             }
             return letra;
@@ -480,6 +482,8 @@ namespace Proyecto1
             if (ListaThom[var] == null)
             {
                 AFD.Add((char)ConjuntoChar + "[peripheries=2 shape=circle];");
+                int aumento = IndexActual + 1;
+                NumerosAceptacion.Add(aumento);
                 return;
             }
             else if (ListaThom[var].ToString() == "ε")
@@ -562,15 +566,15 @@ namespace Proyecto1
             grafo.Append("}\"];}");
             generar_dot(rdot, rpng);
         }
-        public int AceptarLexemas(int fila, String valor, String[,] Hello,int row,int column) {
+        public int AceptarLexemas(int fila, String valor, String[,] Hello, int row, int column) {
             bool sig = false;
             for (int j = 1; j < Numero_columna; j++)
             {
-                if (Hello[0, j][0].ToString()=="'") {
+                if (Hello[0, j][0].ToString() == "'") {
                     String limpio = Hello[0, j].Replace("'", "");
-                    if(limpio.Equals(((char)92).ToString()))
+                    if (limpio.Equals(""))
                     {
-                        limpio = ((char)92).ToString() + ((char)39).ToString();
+                        limpio = ((char)39).ToString();
                     }
                     else if (limpio.ToString().Equals(((char)92).ToString() + "n"))
                     {
@@ -597,7 +601,7 @@ namespace Proyecto1
                         }
                     }
                 } else {
-                    if (EstaEnConjunto(valor, Hello[0, j]) ==true) {
+                    if (EstaEnConjunto(valor, Hello[0, j]) == true) {
                         if (Hello[fila, j] != "--")
                         {
                             if (valor == ((char)9).ToString())
@@ -628,17 +632,17 @@ namespace Proyecto1
                     valor = "salto de linea";
                 }
                 Estado_Espresion = false;
-                SalidaEvaluar.Add(valor + ",Error,"+row+","+column);
+                SalidaEvaluar.Add(valor + ",Error," + row + "," + column);
                 return fila;
             }
             return fila;
         }
-        public bool EstaEnConjunto (String valor,String ConjuntoBuscar){
+        public bool EstaEnConjunto(String valor, String ConjuntoBuscar) {
             bool esta = false;
             for (int i = 0; i < Form1.Conjunto.Count; i++)
             {
-                if (Form1.Conjunto[i].ToString()==ConjuntoBuscar) {
-                    if (Form1.DatCon[i].ToString()==valor) {
+                if (Form1.Conjunto[i].ToString() == ConjuntoBuscar) {
+                    if (Form1.DatCon[i].ToString() == valor) {
                         esta = true;
                         return esta;
                     }
@@ -658,15 +662,66 @@ namespace Proyecto1
                     {
                         string[] words = SalidaEvaluar[i].ToString().Split(',');
                         sw.WriteLine("<Token>");
-                        sw.WriteLine("<Nombre>"+words[0]+"</Nombre>");
-                        sw.WriteLine("<Estado>"+ words[1] + "</Estado>");
-                        sw.WriteLine("<Fila>"+ words[2] + "</Fila>");
-                        sw.WriteLine("<Columna>"+ words[3] + "</Columna>");
+                        sw.WriteLine("<Nombre>" + words[0] + "</Nombre>");
+                        sw.WriteLine("<Estado>" + words[1] + "</Estado>");
+                        sw.WriteLine("<Fila>" + words[2] + "</Fila>");
+                        sw.WriteLine("<Columna>" + words[3] + "</Columna>");
                         sw.WriteLine("</Token>");
                     }
                     sw.WriteLine("</ListaTokens>");
                 }
             }
+        }
+        public void Transformar (String [,]Hello)
+        {
+            for (int j = 1; j < Numero_columna; j++)
+            {
+                if (Hello[0, j][0].ToString() ==((char)169).ToString())
+                {
+                    String limpio = Hello[0, j].Replace(((char)169).ToString(), "");
+                    for (int i = 1; i < Numero_columna; i++)
+                    {
+                        if (Hello[0, i].ToString() == limpio)
+                        {
+                            for (int k = 1; k < Numero_fila; k++)
+                            {
+                                if (Hello[k, j]!="--") {
+                                    Hello[k, i] = Hello[k, j];
+                                }
+                                Hello[k, j] = "";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        public void TransformarEspacios(String[,] Hello)
+        {
+            int nnnn = Numero_columna;
+            for (int j = 1; j < nnnn; j++)
+            {
+                if (Hello[1, j].ToString()=="")
+                {
+                    for (int i = j; i < nnnn - 1; i++)
+                    {
+                        for (int k = 0; k < Numero_fila; k++)
+                        {
+                            Hello[k, i] = Hello[k, i + 1];
+                        }
+                    }
+                    Numero_columna--;
+                }
+            }
+        }
+        public bool UltimoAcepta(int a) {
+            bool SeAcepta = false;
+            for (int i=0;i < NumerosAceptacion.Count;i++) {
+                if (Int32.Parse(NumerosAceptacion[i].ToString()) == a) {
+                    SeAcepta = true;
+                    return SeAcepta;
+                }
+            }
+            return SeAcepta;
         }
     }
 }
